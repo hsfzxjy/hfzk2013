@@ -73,7 +73,7 @@ def object_to_xml(obj):
             node.appendChild(item)
 
     def do_else(node, obj):
-        node.appendChild(dom.createTextNode(str(obj)))
+        node.appendChild(dom.createTextNode(unicode(obj)))
         attr = ''
         if isinstance(obj, unicode) or isinstance(obj, str):
             attr = 'str'

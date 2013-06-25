@@ -9,6 +9,31 @@ class UserError(StandardError):
     def __str__(self):
         return self.__msg
 
+def get_data(param):
+    if isinstance(param, int):
+        return get_data_from_ID(param)
+    elif isinstance(param, modeldef.User):
+        return get_data_from_user(param)
+    elif isinstance(param, modeldef.SNSAccount):
+        return {"account_type":param.account_type, 
+          "account_name":param.account_name,
+          "access_token":param.access_token,
+          "expire_in":param.expire_in}
+    else:
+        return None
+    
+def get_user(param):
+    result = None
+    if isinstance(param, int):
+        result = get_user_from_ID(param)
+    elif isinstance(param, dict):
+        result = get_user_from_account(param['account_type'], param['account_name'])
+    elif isinstance(param, modeldef.SNSAccount):
+        result = get_user_from_account(param.account_type, param.account_name)
+    else:
+        return None
+    return result
+    
 def get_data_from_ID(ID):
     user = get_user_from_ID(ID)
     if not user:
@@ -20,7 +45,8 @@ def get_data_from_user(user):
     result["accounts"] = [
           {"account_type":u.account_type, 
           "account_name":u.account_name,
-          "access_token":u.access_token} for u in user.accounts]
+          "access_token":u.access_token,
+          "expire_in":u.expire_in} for u in user.accounts]
     return result
 
 def get_user_from_ID(ID):
@@ -29,7 +55,8 @@ def get_user_from_ID(ID):
     except Exception:
         gql = None
         raise UserError('User query error.')
-    return gql.get()
+    result = gql.get()
+    return result
 
 def get_user_from_account(_type, _name):
     try:
@@ -66,11 +93,30 @@ def insert_data(data, ID = '', user = None):
     modeldef.SNSAccount(owner = user, 
                         account_name = data["account_name"],
                         account_type = data["account_type"],
-                        access_token = data["access_token"]).put()
+                        access_token = data["access_token"],
+                        expire_in = int(data["expire_in"])).put()
+   
+def modify_data(param, **kw):
+    if isinstance(param, dict):
+        user = get_user(param)
+        if not user:
+            raise UserError("The account is not valid!")
+        gql = modeldef.SNSAccount.gql('WHERE account_name = \'%s\' AND account_type = \'%s\'' % (
+                        param["account_name"], param["account_type"]))
+        account = gql.get()
+    elif isinstance(param, modeldef.SNSAccount):
+        account = param
+    else:
+        return False
+    for k,v in kw.iteritems():
+        setattr(account, k, v)
+    account.put()
+    return True
     
 def login(data):
     user = get_user_from_account(data["account_type"], data["account_name"])
     if user:
+        modify_data(data, access_token = data["access_token"])
         return user.ID
     _ID = get_next_ID()
     s = modeldef.User(ID = _ID)

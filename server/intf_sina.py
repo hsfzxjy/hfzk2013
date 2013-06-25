@@ -36,6 +36,7 @@ class CallBackHandler(webapp2.RequestHandler):
         req["account_name"] = s.api.account__get_uid()["uid"]
         req["account_type"] = "sina"
         req["access_token"] = access_token
+        req["expire_in"] = s.get_info()["expire_in"]
         util.redirect_to_login(self, req)
         
 app = webapp2.WSGIApplication([

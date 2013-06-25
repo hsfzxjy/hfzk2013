@@ -8,6 +8,7 @@ except:
 import __global
 import urllib
 import StringIO
+import logging
 from urllib import urlopen, urlencode
 
 _app_key = '452362856'
@@ -67,6 +68,10 @@ class API(object):
         def wrap(**kw):
             _url = _url_header % attr.replace('__','/')
             kw['access_token'] = self._access_token
+            for i,j in kw.iteritems():
+                if isinstance(j,unicode):
+                    kw[i] = j.encode('utf8')
+            logging.info(str(kw))
             return self.__request(_url, urlencode(kw))
 
         return wrap

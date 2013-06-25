@@ -29,7 +29,7 @@ class User_QueryHandler(webapp2.RequestHandler):
         ID = int(self.request.get("ID"))
         type = self.request.get("type")
         try:
-            info = userop.get_data_from_ID(ID)
+            info = userop.get_data(ID)
         except userop.UserError, e:
             info = {"error" : str(e)}
         res = code.object_to_xml(info).toxml() if type == 'xml' else \

@@ -17,9 +17,6 @@
 import webapp2
 import open.sina
 
-html = '''
-<html><head/><body>
-<form action='/admin'><input type='text' name='code'/><input type=submit>submit</input></form></body></html>'''
 class MainHandler(webapp2.RequestHandler):
     def get(self):
         self.redirect('/intf/sina/')

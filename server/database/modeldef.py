@@ -12,4 +12,5 @@ class SNSAccount(db.Model):
     account_type = db.StringProperty(choices = ('sina','facebook','twitter'))
     account_name = db.StringProperty()
     access_token = db.StringProperty()
+    expire_in = db.IntegerProperty()
     
