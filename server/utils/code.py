@@ -2,8 +2,6 @@ from xml.dom import minidom
 import json
 from StringIO import StringIO as sio
 
-impl = minidom.getDOMImplementation()
-dom = impl.createDocument(None, "_BASE", None)
 toxml = lambda(text):minidom.parseString(text).documentElement
 
 def xml_to_object(text):
@@ -44,6 +42,8 @@ def xml_to_object(text):
         _type = get_type(_xml)
         return _type(_xml.childNodes[0].nodeValue)
     
+    impl = minidom.getDOMImplementation()
+    dom = impl.createDocument(None, "_BASE", None)    
     return do_iter(toxml(text).toxml(), dict)
 
 def object_to_xml(obj):
@@ -82,7 +82,9 @@ def object_to_xml(obj):
         elif isinstance(obj, int):
             attr = 'int'
         node.setAttribute('type',attr)
-                        
+         
+    impl = minidom.getDOMImplementation()
+    dom = impl.createDocument(None, "_BASE", None)                   
     result= dom.documentElement
     do_dict(result, obj)
     return result
