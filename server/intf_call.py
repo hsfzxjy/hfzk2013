@@ -7,17 +7,17 @@ class MainHandler(webapp2.RequestHandler):
     
     def get(self):
         self.response.headers["Content-Type"] = 'text/plain'
-    try:
-        sns = self.request.get("sns")
-        func_name = self.request.get("func_name")
-        access_token = self.request.get("access_token")
-        req = {}
-        for i in self.request.arguments():
-            if i not in ("sns", "func_name","access_token"):
-                req[i] = self.request.get(i)
-        response = getattr(self, "_do_%s"%sns)(func_name, access_token, req)
-    except:
-        response = {"_error": "Bad request!"}
+        try:
+            sns = self.request.get("sns")
+            func_name = self.request.get("func_name")
+            access_token = self.request.get("access_token")
+            req = {}
+            for i in self.request.arguments():
+                if i not in ("sns", "func_name","access_token"):
+                    req[i] = self.request.get(i)
+            response = getattr(self, "_do_%s"%sns)(func_name, access_token, req)
+        except:
+            response = {"_error": "Bad request!"}
         self.response.clear()
         self.response.write(object_to_xml(response).toxml())
     
