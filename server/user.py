@@ -1,8 +1,7 @@
 from google.appengine.ext import db
 import webapp2
-from utils import util, code
-import base64
-from database import userop, modeldef
+from common.utils import util, code
+from common import userop, modeldef
 
 class User_LoginHandler(webapp2.RequestHandler):
 
@@ -35,6 +34,11 @@ class User_QueryHandler(webapp2.RequestHandler):
         res = code.object_to_xml(info).toxml() if type == 'xml' else \
                         code.object_to_json(info)
         self.response.write(res)
+    
+class User_OperateHandler(webapp2.RequestHandler):
+    
+    def get(self):
+        pass
     
 app = webapp2.WSGIApplication([
     ('/user/login', User_LoginHandler), 

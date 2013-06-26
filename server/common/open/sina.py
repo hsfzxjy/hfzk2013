@@ -99,3 +99,6 @@ class Sina(object):
         param = {'access_token': self._access_token}
         res = json.load(urlopen(_get_token_info_url, urlencode(param)))
         return res
+    
+    def expire_in(self):
+        return self.get_info()['expire_in']

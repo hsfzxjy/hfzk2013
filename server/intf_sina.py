@@ -15,28 +15,28 @@
 # limitations under the License.
 #
 import webapp2
-import open.sina
+from common.open import sina
 import urllib
-from utils import util
+from common.utils import util
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
-        oauth = open.sina.OAuth()
+        oauth = sina.OAuth()
         self.redirect(oauth.get_authorize_url())
 
 class CallBackHandler(webapp2.RequestHandler):
     def get(self):
         code=self.request.get('code')
         self.response.write(code+'\n')
-        oauth = open.sina.OAuth()
+        oauth = sina.OAuth()
         access_token = oauth.get_access_token(code)
-        s = open.sina.Sina(access_token)
+        s = sina.Sina(access_token)
         req = {}
         self.response.write(s.api.account__get_uid())
         req["account_name"] = s.api.account__get_uid()["uid"]
         req["account_type"] = "sina"
         req["access_token"] = access_token
-        req["expire_in"] = s.expire_in()
+        req["expire_in"] = s.get_info()["expire_in"]
         util.redirect_to_login(self, req)
         
 app = webapp2.WSGIApplication([

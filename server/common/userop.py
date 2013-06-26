@@ -1,5 +1,6 @@
 from google.appengine.ext import db
 import modeldef
+import logging
 
 class UserError(StandardError):
     
@@ -42,11 +43,14 @@ def get_data_from_ID(ID):
     
 def get_data_from_user(user):
     result = {"ID" : user.ID}
-    result["accounts"] = [
-          {"account_type":u.account_type, 
-          "account_name":u.account_name,
-          "access_token":u.access_token,
-          "expire_in":u.expire_in} for u in user.accounts]
+    result["accounts"] = []
+    for u in user.accounts:
+        u.update()
+        result["accounts"].append(
+              {"account_type":u.account_type, 
+              "account_name":u.account_name,
+              "access_token":u.access_token,
+              "expire_in":u.expire_in})
     return result
 
 def get_user_from_ID(ID):
@@ -59,16 +63,11 @@ def get_user_from_ID(ID):
     return result
 
 def get_user_from_account(_type, _name):
-    try:
-        gql = modeldef.SNSAccount.gql('WHERE account_name = \'%s\' AND account_type = \'%s\'' % (
-                _name, _type))
-    except Exception:
-        raise UserError('User query Error.')
-    s = gql.get()
-    if not s: 
+    data = {'account_type':_type, 'account_name':_name}
+    acc = get_account(data)
+    if not acc:
         return None
-    else:
-        return s.owner
+    return acc.owner
 
 def get_next_ID():
     gql = modeldef.User.gql("ORDER BY ID DESC")
@@ -85,7 +84,7 @@ def insert_data(data, ID = '', user = None):
     """
     if ID:
         _user = get_user_from_ID(ID)
-        user = None
+        user = _user
     if not user:
         raise UserError("ID %s does not exist!" % str(ID))
     if get_user_from_account(data["account_type"], data["account_name"]):
@@ -97,17 +96,9 @@ def insert_data(data, ID = '', user = None):
                         expire_in = int(data["expire_in"])).put()
    
 def modify_data(param, **kw):
-    if isinstance(param, dict):
-        user = get_user(param)
-        if not user:
-            raise UserError("The account is not valid!")
-        gql = modeldef.SNSAccount.gql('WHERE account_name = \'%s\' AND account_type = \'%s\'' % (
-                        param["account_name"], param["account_type"]))
-        account = gql.get()
-    elif isinstance(param, modeldef.SNSAccount):
-        account = param
-    else:
-        return False
+    account = get_account(param)
+    if not account:
+        raise UserError('The account is invalid!')
     for k,v in kw.iteritems():
         setattr(account, k, v)
     account.put()
@@ -123,3 +114,20 @@ def login(data):
     s.put()
     insert_data(data, user = s)
     return s.ID
+
+def get_account(data):
+    if isinstance(data, dict):
+   # try:
+        gql = modeldef.SNSAccount.gql("WHERE account_name = '%s' AND account_type = '%s'" %(
+        data['account_name'], data['account_type']))
+        acc = gql.get()
+    #except:
+     #   acc = None
+    elif isinstance(data, modeldef.SNSAccount):
+        acc = data
+    else:
+        return None
+    if acc:
+        acc.update()
+    logging.info(str(acc))    
+    return acc

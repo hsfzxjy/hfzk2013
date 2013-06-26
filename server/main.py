@@ -15,7 +15,6 @@
 # limitations under the License.
 #
 import webapp2
-import open.sina
 
 class MainHandler(webapp2.RequestHandler):
     def get(self):
