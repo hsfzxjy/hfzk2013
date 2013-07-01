@@ -79,7 +79,7 @@ def object_to_xml(obj):
             attr = 'str'
         elif isinstance(obj, bool):
             attr = 'bool'
-        elif isinstance(obj, int):
+        elif isinstance(obj, int) or isinstance(obj, long):
             attr = 'int'
         node.setAttribute('type',attr)
          

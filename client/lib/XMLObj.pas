@@ -56,6 +56,7 @@ type
     procedure SetNode(Index: Variant;const Value: TNode); override;
     function GetValues(str: String): TNode;override;
   public
+    function HasKey(key: string): boolean;
     function Count: Integer; override;
     function HasChildren: Boolean; override;
     procedure Add(Key: string;Value: TNode);override;
@@ -264,6 +265,14 @@ end;
 function TNodeDict.HasChildren: Boolean;
 begin
   result := ADict.Count <> 0;
+end;
+
+function TNodeDict.HasKey(key: string): boolean;
+begin
+  if ADict.IndexOf(key) < 0 then
+    result := false
+  else
+    result := true;
 end;
 
 procedure TNodeDict.Remove(Key: String);

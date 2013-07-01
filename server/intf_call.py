@@ -1,6 +1,6 @@
 import webapp2
-from utils.code import object_to_xml
-import open.sina
+from common.utils.code import object_to_xml
+from common.open import sina
 import logging
 
 class MainHandler(webapp2.RequestHandler):
@@ -27,6 +27,7 @@ class MainHandler(webapp2.RequestHandler):
            func_name: *
            access_token: *
            parameter: optional"""
+        self.response.headers['Content-Type'] = 'text/plain'
         try:
             sns = self.request.get("sns")
             func_name = self.request.get("func_name")
@@ -42,7 +43,7 @@ class MainHandler(webapp2.RequestHandler):
         
     def _do_sina(self, func_name, access_token, req):
         try:
-            s = open.sina.Sina(access_token)
+            s = sina.Sina(access_token)
             response = getattr(s.api, func_name)(**req)
         except:
             response = {"_error": "Bad request!"}

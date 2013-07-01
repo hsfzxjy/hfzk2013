@@ -77,7 +77,7 @@ def get_next_ID():
     else:
         return user.ID + 1
 
-def insert_data(data, ID = '', user = None):
+def insert_data(data, ID = 0, user = None):
     """
         e.g. insert_data(0001, {"user_name":13434312012, "access_token":XXX,
           "sns":"sina"})
