@@ -9,7 +9,7 @@ class MainHandler(webapp2.RequestHandler):
     
     def get(self):
         tw = Twitter(self.request.get('oauth_token'),self.request.get('oauth_secret'))
-        logging.info(tw.api.statuses__user_timeline().encode(''))
+        self.response.write(tw.api.statuses__user_timeline().decode('GB2312'))
 
 class CallbackHandler(webapp2.RequestHandler):
     
@@ -28,7 +28,9 @@ class CallbackHandler(webapp2.RequestHandler):
         param['expire_in'] = 0
         #self.response.write(self.request.get('oauth_token')
         #util.redirect_to_login(self, param)
-        self.redirect('/intf/twitter/')
+        #self.redirect('/intf/twitter/')
+        tw = Twitter(param['access_token'], param['access_secret'])
+        self.response.write(tw.api.statuses__user_timeline().decode('GB2312'))        
     
 class OAuthHandler(webapp2.RequestHandler):
     

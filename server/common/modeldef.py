@@ -11,6 +11,7 @@ class SNSAccount(db.Model):
     
     owner = db.ReferenceProperty(User, collection_name = 'accounts')
     account_type = db.StringProperty(choices = ('sina','facebook','twitter'))
+    access_secret = db.StringProperty()
     account_name = db.StringProperty()
     access_token = db.StringProperty()
     expire_in = db.IntegerProperty()

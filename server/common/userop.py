@@ -19,7 +19,8 @@ def get_data(param):
         return {"account_type":param.account_type, 
           "account_name":param.account_name,
           "access_token":param.access_token,
-          "expire_in":param.expire_in}
+          "expire_in":param.expire_in,
+          "access_secret":param.access_secret}
     else:
         return None
     
@@ -50,7 +51,8 @@ def get_data_from_user(user):
               {"account_type":u.account_type, 
               "account_name":u.account_name,
               "access_token":u.access_token,
-              "expire_in":u.expire_in})
+              "expire_in":u.expire_in,
+              "access_token":u.access_secret})
     return result
 
 def get_user_from_ID(ID):
@@ -89,11 +91,14 @@ def insert_data(data, ID = 0, user = None):
         raise UserError("ID %s does not exist!" % str(ID))
     if get_user_from_account(data["account_type"], data["account_name"]):
         return True
-    modeldef.SNSAccount(owner = user, 
+    acc = modeldef.SNSAccount(owner = user, 
                         account_name = data["account_name"],
                         account_type = data["account_type"],
                         access_token = data["access_token"],
-                        expire_in = int(data["expire_in"])).put()
+                        expire_in = int(data["expire_in"]))
+    if data.has_key("access_secret"):
+        acc.access_secret = data["access_secret"]
+    acc.put()
    
 def modify_data(param, **kw):
     account = get_account(param)
