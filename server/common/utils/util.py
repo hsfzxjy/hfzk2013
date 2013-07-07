@@ -19,3 +19,6 @@ def login_data_decode(data):
 
 def redirect_to_login(cls, data):
     cls.redirect('/user/login?'+login_data_encode(data))
+    
+def urldecode(url):
+    return {urllib.unquote(s.split('=')[0]):urllib.unquote(s.split('=')[1]) for s in url.split('&')}

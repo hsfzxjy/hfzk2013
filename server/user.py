@@ -3,6 +3,11 @@ import webapp2
 from common.utils import util, code
 from common import userop, modeldef
 
+class MainHandler(webapp2.RequestHandler):
+    
+    def get(self):
+        pass
+
 class User_LoginHandler(webapp2.RequestHandler):
 
     def post(self):
@@ -41,10 +46,12 @@ class User_OperateHandler(webapp2.RequestHandler):
     
     def get(self):
         '''
-          e.g. ID=1&method=(add|combine|delete)
+          e.g. ID=1&method=(add|combine|delete|create)
         '''
-        self.__ID = int(self.request.get('ID'))
+        self.response.headers['Content-Type'] = 'text/plain'
         method = self.request.get('method')
+        if method != 'create':
+             self.__ID = int(self.request.get('ID'))
         data = {}
         for i in self.request.arguments():
             if i not in ('ID', 'method'):
@@ -56,6 +63,13 @@ class User_OperateHandler(webapp2.RequestHandler):
         if not res:
             res = {'error':'Somethind has been wrong!'}
         self.response.write(code.object_to_xml(res).toxml())
+        
+    def _do_create(self, data):
+        user = modeldef.User()
+        user.put()
+        user.ID = user.key().id()
+        user.put()
+        return {'ID': user.ID}
         
     def _do_add(self, data):
         '''
@@ -97,5 +111,6 @@ class User_OperateHandler(webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/user/login', User_LoginHandler), 
     ('/user/query', User_QueryHandler),
-    ('/user/operate', User_OperateHandler)
+    ('/user/operate', User_OperateHandler),
+    ('/user/', MainHandler)
 ], debug=True)

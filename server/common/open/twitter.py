@@ -4,7 +4,7 @@ CONSUMER_SECRET = 'hIvCLhG6u37RUfjYI7wa6bHDbjjgGZx6h5S37LTwE'
 REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
 ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
 AUTHORIZE_URL = 'https://api.twitter.com/oauth/authorize'
-CALLBACK_URL = 'http://localhost:11080/intf/twitter/callback'
+CALLBACK_URL = 'https://hfzkdebug.appspot.com/intf/twitter/callback'
 BASE_URL = 'https://api.twitter.com/1.1/%s.json'
 
 import logging

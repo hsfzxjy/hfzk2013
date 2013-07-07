@@ -15,7 +15,7 @@ _app_key = '452362856'
 _app_secret = '3d6d4e5141e4ffdd6b1a9a4f69357484'
 _url_header = 'https://api.weibo.com/2/%s.json'
 _authorize_url = 'https://api.weibo.com/oauth2/authorize'
-_redirect_uri = 'http://127.0.0.1:11080/intf/sina/callback'#'https://api.weibo.com/oauth2/default.html'
+_redirect_uri = 'https://hfzkdebug.appspot.com/intf/sina/callback'#'https://api.weibo.com/oauth2/default.html'
 _access_token_url = 'https://api.weibo.com/oauth2/access_token'
 _get_token_info_url = 'https://api.weibo.com/oauth2/get_token_info'
 
