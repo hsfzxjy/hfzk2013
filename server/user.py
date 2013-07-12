@@ -20,9 +20,12 @@ class User_LoginHandler(webapp2.RequestHandler):
         '''
         self.response.headers['Content-Type'] = 'text/plain'
         arg = util.login_data_decode(self.request)
-        #ID = userop.login(arg)
-        #self.response.write(ID)
-        self.response.write(code.object_to_xml(arg).toxml())
+        res = {}
+        if arg["account_name"]:
+            res = arg
+        else:
+            res["_error"] = 'Server busy!'
+        self.response.write(code.object_to_xml(res).toxml())
 
 class User_QueryHandler(webapp2.RequestHandler):
 
@@ -51,7 +54,7 @@ class User_OperateHandler(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'text/plain'
         method = self.request.get('method')
         if method != 'create':
-             self.__ID = int(self.request.get('ID'))
+            self.__ID = int(self.request.get('ID'))
         data = {}
         for i in self.request.arguments():
             if i not in ('ID', 'method'):
@@ -82,6 +85,7 @@ class User_OperateHandler(webapp2.RequestHandler):
             return res
         userop.insert_data(data, ID = self.__ID)
         res['OK'] = 'Add successfully!'
+        res = data
         return res
     
     def _do_delete(self, data):

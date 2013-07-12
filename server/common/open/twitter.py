@@ -61,11 +61,12 @@ class API(object):
         
         def wrap(**kw):
             _url = BASE_URL % attr.replace('__', '/')
-            data = get_oauth_params(kw, _url, token_secret = self._access_secret)
+            kw['oauth_token'] = self._access_token
+            data = get_oauth_params(kw, _url, token_secret = self._access_secret, method = 'GET')
             data['oauth_token'] = self._access_token
             del data['oauth_callback']
-            res = urlfetch.fetch(_url, headers={'Authorization':'OAuth '+dict2qs(data)}, method='GET').content
-            return res#load(StringIO.StringIO(res.encode('utf8')))
+            res = urlfetch.fetch(_url, headers={'Authorization':'OAuth '+dict2qs(data)}, method=urlfetch.GET).content
+            return dict2qs(data)#load(StringIO.StringIO(res.encode('utf8')))
         
         return wrap
             

@@ -1,5 +1,6 @@
 from google.appengine.ext import db
 import open.sina
+import open.facebook
 
 class User(db.Model):
     '''The user model definition'''
@@ -19,6 +20,8 @@ class SNSAccount(db.Model):
     def __sns(self):
         if self.account_type == 'sina':
             return open.sina.Sina(self.access_token)
+        if self.account_type == 'facebook':
+            return open.facebook.Facebook(self.access_token)
         
     def update(self):
         sns = self.__sns()

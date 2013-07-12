@@ -10,6 +10,9 @@ import urllib
 import StringIO
 import logging
 from urllib import urlopen, urlencode
+from google.appengine.api import urlfetch
+from common.utils import util
+from StringIO import StringIO
 
 _app_key = '452362856'
 _app_secret = '3d6d4e5141e4ffdd6b1a9a4f69357484'
@@ -41,11 +44,11 @@ class API(object):
     def __request(self, url, data):
         
         def get(_url):
-            r = urlopen(_url)
+            r = StringIO(util.safe_call(_url).content)
             return r
 
         def post(_url, _data):
-            r = urlopen(_url, _data)
+            r = StringIO(util.safe_call(_url, payload = _data, method=urlfetch.POST).content)
             return r
 
         def test_method(s):
@@ -79,13 +82,13 @@ class API(object):
 class OAuth(object):
 
     def get_authorize_url(self):
-        param = {'client_id': _app_key, 'forcelogin': True, 'redirect_uri': _redirect_uri}
+        param = {'client_id': _app_key, 'forcelogin': True, 'redirect_uri': _redirect_uri}#, 'display': 'client'}
         return _authorize_url+'?'+urllib.urlencode(param)
 
     def get_access_token(self, code):
         param = {'client_id': _app_key, 'client_secret': _app_secret, 'grant_type': 'authorization_code',
                    'code': code, 'redirect_uri': _redirect_uri}
-        s = json.load(urllib.urlopen(_access_token_url, urlencode(param)))
+        s = json.load(StringIO(util.safe_call(url=_access_token_url, payload = urlencode(param), method=urlfetch.POST).content))
         return s['access_token']
         
         
@@ -97,8 +100,11 @@ class Sina(object):
 
     def get_info(self):
         param = {'access_token': self._access_token}
-        res = json.load(urlopen(_get_token_info_url, urlencode(param)))
+        res = json.load(StringIO(util.safe_call(_get_token_info_url, payload = urlencode(param), method = urlfetch.POST).content))
         return res
     
     def expire_in(self):
-        return self.get_info()['expire_in']
+        try:
+            return self.get_info()['expire_in']
+        except:
+            return 0

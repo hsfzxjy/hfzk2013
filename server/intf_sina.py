@@ -18,8 +18,15 @@ import webapp2
 from common.open import sina
 import urllib
 from common.utils import util
+from google.appengine.runtime import DeadlineExceededError
 
 class MainHandler(webapp2.RequestHandler):
+    
+    def get(self):
+        pass
+
+class OAuthHandler(webapp2.RequestHandler):
+    
     def get(self):
         oauth = sina.OAuth()
         self.redirect(oauth.get_authorize_url())
@@ -29,16 +36,23 @@ class CallBackHandler(webapp2.RequestHandler):
         code=self.request.get('code')
         self.response.write(code+'\n')
         oauth = sina.OAuth()
-        access_token = oauth.get_access_token(code)
-        s = sina.Sina(access_token)
         req = {}
-        self.response.write(s.api.account__get_uid())
-        req["account_name"] = s.api.account__get_uid()["uid"]
         req["account_type"] = "sina"
-        req["access_token"] = access_token
-        req["expire_in"] = s.get_info()["expire_in"]
+        req["account_name"] = ''
+        req["access_token"] = ''
+        req["expire_in"] = 0
+        try:
+            access_token = oauth.get_access_token(code)
+            s = sina.Sina(access_token)
+            req["account_name"] = s.api.account__get_uid()["uid"]
+            req["access_token"] = access_token
+            req["expire_in"] = s.get_info()["expire_in"]
+        except DeadlineExceededError:
+            pass
         util.redirect_to_login(self, req)
         
 app = webapp2.WSGIApplication([
-    ('/intf/sina/', MainHandler), ('/intf/sina/callback',CallBackHandler)
+    ('/intf/sina/', MainHandler), 
+    ('/intf/sina/callback',CallBackHandler),
+    ('/intf/sina/oauth', OAuthHandler)
 ], debug=True)

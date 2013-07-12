@@ -3,6 +3,23 @@ import json
 import urllib
 import webapp2
 from google.appengine.ext import db
+from google.appengine.api import urlfetch
+from google.appengine.runtime import DeadlineExceededError
+
+def safe_call(url, payload = None, method = urlfetch.GET):
+    
+    def _call(_url, _payload = None, _method = urlfetch.GET):
+        try:
+            res = urlfetch.fetch(_url, payload = _payload, method = _method, \
+                                 deadline = 10)
+        except DeadlineExceededError:
+            res = None
+        return res
+    
+    res = None
+    while not res:
+        res = _call(url, _payload = payload, _method = method)
+    return res
 
 def login_data_encode(data):
     result = ''

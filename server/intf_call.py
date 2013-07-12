@@ -52,11 +52,11 @@ class MainHandler(webapp2.RequestHandler):
         pass     #Haven't implemented
     
     def _do_facebook(self, func_name, access_token, req):
-        #try:
-        f = facebook.Facebook(access_token)
-        response = getattr(f.api, func_name)(**req)
-        #except:
-            #response = {"_error": "Bad request!"}
+        try:
+            f = facebook.Facebook(access_token)
+            response = getattr(f.api, func_name)(**req)
+        except:
+            response = {"_error": "Bad request!"}
         return response
     
 app = webapp2.WSGIApplication([

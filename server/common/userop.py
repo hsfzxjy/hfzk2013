@@ -52,7 +52,7 @@ def get_data_from_user(user):
               "account_name":u.account_name,
               "access_token":u.access_token,
               "expire_in":u.expire_in,
-              "access_token":u.access_secret})
+              "access_secret":u.access_secret})
     return result
 
 def get_user_from_ID(ID):
