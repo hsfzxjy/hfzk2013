@@ -2,7 +2,7 @@ unit Data_Intf;
 
 interface
 
-uses Classes, XMLObj, NativeXML, Global, Sysutils, Variants, IdURI;
+uses Classes, XMLObj, web_connect, Global, Sysutils, Variants, IdURI;
 
 type
 
@@ -92,13 +92,8 @@ begin
 end;
 
 function TAPICall._Query: TNode;
-var
-  xml: TNativeXML;
 begin
-  xml := TNativeXML.Create(nil);
-  xml.LoadFromURL(QueryURL);
-  result := parse(xml);
-  xml.Free;
+  result := web_connect.GetDataFromURL(QueryURL());
 end;
 
 function TAPICall.QueryURL: string;

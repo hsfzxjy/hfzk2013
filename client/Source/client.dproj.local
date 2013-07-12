@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>2013/07/09 13:05:36.003.pas,C:\Users\computer\Documents\RAD Studio\Projects\Unit2.pas=E:\Zk Cup\Source\client\Source\Main.pas</Transaction>
+    <Transaction>2013/07/09 13:05:36.003.dfm,C:\Users\computer\Documents\RAD Studio\Projects\Unit2.dfm=E:\Zk Cup\Source\client\Source\Main.dfm</Transaction>
+    <Transaction>2013/07/09 13:05:48.396.dproj,C:\Users\computer\Documents\RAD Studio\Projects\Project2.dproj=E:\Zk Cup\Source\client\Source\client.dproj</Transaction>
+    <Transaction>2013/07/09 13:22:04.820.pas,E:\Zk Cup\Source\client\Source\Main.pas=E:\Zk Cup\Source\client\Source\UI\Main.pas</Transaction>
+    <Transaction>2013/07/09 13:22:04.820.dfm,E:\Zk Cup\Source\client\Source\Main.dfm=E:\Zk Cup\Source\client\Source\UI\Main.dfm</Transaction>
+    <Transaction>2013/07/12 17:15:52.943.pas,E:\Zk Cup\Source\client\Source\Unit1.pas=E:\Zk Cup\Source\client\Source\Kernel\web_connect.pas</Transaction>
+    <Transaction>2013/07/12 21:01:31.774.pas,E:\Zk Cup\Source\client\Source\Unit1.pas=E:\Zk Cup\Source\client\Source\Kernel\Cache.pas</Transaction>
+  </Transactions>
+</BorlandProject>

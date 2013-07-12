@@ -2,7 +2,7 @@ unit User_Intf;
 
 interface
 
-uses Sysutils, Global, XMLObj, IDHttp, NativeXML, Classes, Variants;
+uses Sysutils, Global, XMLObj, web_connect, Classes, Variants, Data_Intf, NativeXML;
 
 type
   TUser =class;
@@ -11,7 +11,6 @@ type
 
   TUser = class
   private
-    http: TIdHttp;
     AID: Int64;
     AccountsList: TStringList;
     TwitterList, SinaList, FacebookList: TStringList;
@@ -20,6 +19,10 @@ type
     property ID: int64 read AID;
     property Accounts[node:TAccount_Type;name: Variant]: TAccount read GetAccounts;
 
+    function AddAccount(AAccess_Token, AAccount_Name: String;
+      AAccount_Type: TAccount_Type;AExpire_In: Longint): boolean;overload;
+    function AddAccount(xml: string):boolean; overload;
+    function AddAccount(xml: TNativeXML): boolean; overload;
     function AccountsCount(at: TAccount_Type): Integer;
     procedure Update;
     constructor Create(ID: int64);
@@ -28,12 +31,12 @@ type
 
   TAccount = class
   private
-    http: TIdHttp;
     AOwner: TUser;
     AAccess_Token: string;
     AAccount_Name: string;
     AAccount_Type: TAccount_Type;
-    AExpire_In: Int64;
+    AExpire_In: Longint;
+    mAPI: TAPICall;
     procedure Init;
     procedure Update(node: TNode);
   public
@@ -41,15 +44,37 @@ type
     property Access_Token: string read AAccess_Token;
     property Account_Name: string read AAccount_Name;
     property Account_Type: TAccount_Type read AAccount_Type;
-    property Expire_In: Int64 read AExpire_In;
+    property Expire_In: Longint read AExpire_In;
+    property API: TAPICall read mAPI write mAPI;
 
     constructor Create(Owner: TUser;access_token, account_name, account_type:string;
-      expire_in: int64);overload;
+      expire_in: Longint);overload;
     constructor Create(Owner: TUser;data: TNode);overload;
     destructor Destroy;override;
   end;
 
+const
+  TypeStrings : array [0..2] of String = ('sina','twitter','facebook');
+
 implementation
+
+var
+  Create_URL:string;
+  Delete_URL:string;
+  Add_URL: string;
+  Add_URL2: string;
+  Combine_URL: string;
+
+procedure Init;
+begin
+  Create_URL := User_Operate_URL+'?method=create';
+  Delete_URL := User_Operate_URL+'?method=delete&ID=%d&account_type=%s&account_name=%s';
+  Add_URL := User_Operate_URL+'?method=add&ID=%d&account_type=%s&account_name=%s' +
+                             '&access_token=%s&expire_in=%d';
+  Add_URL2 := User_Operate_URL+'?method=add&ID=%d&account_type=%s&account_name=%s' +
+                             '&access_token=%s&access_secret=%s&expire_in=%d';
+  Combine_URL := User_Operate_URL+'?method=combine&ID=%d&ID2=%d';
+end;
 
 function get_type(str: string): TAccount_Type;
 begin
@@ -61,10 +86,10 @@ end;
 { TAccount }
 
 constructor TAccount.Create(Owner: TUser; access_token, account_name,
-  account_type: string; expire_in: int64);
+  account_type: string; expire_in: Longint);
 begin
   Init;
-  self.AOwner :=Owner;
+  self.AOwner := Owner;
   AAccess_Token := access_token;
   AAccount_Name := account_name;
   AAccount_Type := get_type(account_type);
@@ -80,13 +105,13 @@ end;
 
 destructor TAccount.Destroy;
 begin
-  Http.Free;
+  mAPI.Free;
   inherited;
 end;
 
 procedure TAccount.Init;
 begin
-  Http := TIdHttp.Create(nil);
+  mAPI := TAPICall.Create(AAccess_Token);
 end;
 
 procedure TAccount.Update(node: TNode);
@@ -104,6 +129,49 @@ begin
   result := TStringList(AccountsList.Objects[ord(at)]).Count;
 end;
 
+function TUser.AddAccount(AAccess_Token, AAccount_Name: String;
+  AAccount_Type: TAccount_Type; AExpire_In: Longint): boolean;
+var
+  ty, url: string;
+  node: TNode;
+  list: TStringList;
+begin
+  ty := TypeStrings[Ord(AAccount_Type)];
+  url := Format(Add_URL, [AID, ty, AAccount_Name,
+                 AAccess_Token, AExpire_In]);
+  result := True;
+  try
+    node := GetDataFromURL(url);
+    if node.HasKey('_error') then result := False;
+    if Result then
+    begin
+      list := TStringList(AccountsList.Objects[Ord(AAccount_Type)]);
+      list.AddObject(AAccount_Name,TAccount.Create(self, AAccess_Token, AAccount_Name, AAccount_Type, AExpire_In));
+    end;
+  finally
+    node.Free;
+  end;
+end;
+
+function TUser.AddAccount(xml: string): boolean;
+var
+  x: TNativeXML;
+begin
+  x := TNativeXML.Create(nil);
+  x.ReadFromString(xml);
+  result := AddAccount(x);
+  x.Free;
+end;
+
+function TUser.AddAccount(xml: TNativeXML): boolean;
+var
+  node: TNode;
+begin
+  node := parse(xml);
+  result := AddAccount(node['access_token'].Value, node['account_name'].Value,
+      get_type(node['account_type'].Value), node['expire_in'].Value);
+end;
+
 constructor TUser.Create(ID: int64);
 begin
   AID := ID;
@@ -114,7 +182,6 @@ begin
   AccountsList.AddObject('sina', SinaList);
   AccountsList.AddObject('twitter', TwitterList);
   AccountsList.AddObject('facebook', FacebookList);
-  http := TIdHttp.Create(nil);
   Update;
 end;
 
@@ -124,7 +191,6 @@ begin
   SinaList.Free;
   TwitterList.Free;
   FacebookList.Free;
-  http.Free;
   inherited;
 end;
 
@@ -149,18 +215,14 @@ end;
 
 procedure TUser.Update;
 var
-  str: string;
   xml: TNativeXML;
   node, tmp: TNode;
   i: Integer;
   acc: TStringList;
   account: TAccount;
 begin
-  str := http.Get(Format('%s?type=xml&ID=%d',[global.User_Query_URL, AID]));
-  xml := TNativeXML.Create(nil);
-  xml.ReadFromString(str);
-  node := parse(xml)['accounts'];
-  xml.Free;
+  node := web_connect.GetDataFromURL(
+    Format('%s?type=xml&ID=%d',[global.User_Query_URL, AID]))['accounts'];
   for i := 1 to node.Count do
   begin
     tmp := node[i];
@@ -175,5 +237,9 @@ begin
   end;
   node.Free;
 end;
+
+initialization
+
+  Init;
 
 end.

@@ -5,7 +5,7 @@ interface
 uses IniFiles, Sysutils;
 
 const
-  Ini_Name :string = 'Config.INI';
+  Ini_Name :string = '.\Main.INI';
 
 var
   Host_URL: string;
@@ -21,7 +21,7 @@ var
   ini: TINIFile;
 begin
   ini := TINIFile.Create(Ini_Name);
-  Host_URL := ini.ReadString('URL', 'HOST_URL', 'http://localhost:11080');
+  Host_URL := ini.ReadString('URL', 'HOST_URL', 'https://hfzkdebug.appspot.com');
   User_Query_URL := ini.ReadString('URL', 'USER_QUERY_URL', Host_URL+'/user/query');
   User_Login_URL := ini.ReadString('URL', 'USER_LOGIN_URL', Host_URL+'/user/login');
   Intf_Sina_URL := ini.ReadString('URL', 'Intf_Sina_URL', Host_URL+'/intf/sina');

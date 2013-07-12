@@ -1,0 +1,23 @@
+unit web_connect;
+
+interface
+
+uses mshtml, OleCtrls, SHDocVw;
+
+function Get(url:string):string;
+
+implementation
+
+function Get(url:string):string;
+var
+  wb: TWebBrowser;
+  i: IHTMLElement;
+begin
+  wb := TWebBrowser.Create(nil);
+  wb.Navigate(url);
+  i:=(wb.Document as IHTMLDocument2).body;
+  result:=i.outerText;
+  wb.Free;
+end;
+
+end.

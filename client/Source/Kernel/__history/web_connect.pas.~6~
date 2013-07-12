@@ -1,0 +1,26 @@
+unit web_connect;
+
+interface
+
+uses NativeXML, XMLObj;
+
+function GetDataFromURL(url: string): WideString; overload;
+function GetDataFromURL(url: string): TNode; overload;
+
+implementation
+
+function GetDataFromURL(url: string): WideString;
+var
+  xml: TNativeXML;
+begin
+  xml := TNativeXML.Create(nil);
+  result := '';
+  try
+    xml.LoadFromURL(url);
+    result := xml.WriteToLocalUnicodeString;
+  except
+    
+  end;  
+end;
+
+end.

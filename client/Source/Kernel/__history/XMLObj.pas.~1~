@@ -85,11 +85,12 @@ type
   end;
 
 function parse(xml: TNativeXML): TNode;
-function do_list(xml: TXMLNode;parent: TNode):TNode;
-function do_dict(xml: TXMLNode;parent: TNode):TNode;
-function do_else(xml: TXMLNode;parent: TNode):TNode;
 
 implementation
+
+function do_list(xml: TXMLNode;parent: TNode):TNode;forward;
+function do_dict(xml: TXMLNode;parent: TNode):TNode;forward;
+function do_else(xml: TXMLNode;parent: TNode):TNode;forward;
 
 function get_type(node: TXMLNode):TNodeType;
   var
