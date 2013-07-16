@@ -1,0 +1,74 @@
+HSFZZK Debug 使用帮助
+
+Host: https://hfzkdebug.appspot.com
+======================================================
+/intf/(*)/oauth:
+
+(*)处可填sina,twitter,facebook，重定向至各社交平台的OAuth页面。
+
+调用成功后返回一个带access_token的XML。
+======================================================
+/intf/call:
+
+社交平台API的通用调用地址
+
+参数说明(带*为必填):
+  sns *:可选择sina, twitter, facebook.标示社交平台
+  access_token *:从OAuth页面拿到的access_token
+  func_name *:要调用的API的函数名(注：所有的/换成__,如sina的https://api.weibo.com/2/account/get_uid.json，在此处只取account__get_uid)
+  需传给API的其他参数：（以实际情况而定,详见各开发者平台的API文档）
+
+如，向新浪发一条Hello world!:
+
+/intf/call?sns=sina&access_token=XXXXXXX&func_name=statuses__update&status=Hello%20world%21
+======================================================
+/user/query:
+
+获得服务器内部的用户信息
+
+参数说明（带*为必填）：
+  ID *:用户的ID，在增加用户时可获得
+  type:返回类型，可填xml或json，默认为json
+
+如：
+
+/user/query?ID=1001&type=xml
+======================================================
+/user/operate:
+用户操作
+
+参数说明（带*为必填）:
+  method *:操作的方法，可选create, combine, add, delete
+  ID (*当method不为create时): 要操作用户的ID
+
+  当method=add:
+    account_type *:账户类型,可填sina, facebook,twitter
+    account_name *:账户UID
+    access_token *:账户的access_token
+
+  当method=delete:
+    account_type *:账户类型,可填sina, facebook,twitter
+    account_name *:账户UID
+
+  当method=combine:
+    ID2 *:需要合并的ID，操作成功后ID2的信息会合并至ID，而ID2将会被删除
+
+如：
+
+/user/operate?method=create
+/user/operate?ID=1001&method=add&account_type=sina&account_name=XXXXXXX&access_token=XXXXXXXXX
+/user/operate?ID=1001&method=delete&account_type=sina&account_name=XXXXXXXXX
+/user/operate?ID=1001&method=combine&ID2=1002
+======================================================
+后注：
+
+sina部分在墙外极不稳定，可能需要多试几次才成功
+twitter部分善未完成
+
+该服务器的控制台：https://appengine.google.com，用hsfzzk账号登陆
+
+各平台API链接：
+
+sina：http://open.weibo.com/wiki/%E5%BE%AE%E5%8D%9AAPI
+twitter：https://dev.twitter.com/docs/api/1.1
+facebook：https://developers.facebook.com/tools/explorer?method=GET&path=me（这是facebook的API测试工具，facebook的API文档较为难找，不妨在这试试）   
