@@ -2571,19 +2571,19 @@ class AppCfgApp(object):
 
     def GetUserCredentials():
       """Prompts the user for a username and password."""
-      email = self.options.email
-      if email is None:
-        email = self.raw_input_fn('Email: ')
+      #email = self.options.email
+      #if email is None:
+        #email = self.raw_input_fn('Email: ')
 
-      password_prompt = 'Password for %s: ' % email
+      #password_prompt = 'Password for %s: ' % email
 
 
-      if self.options.passin:
-        password = self.raw_input_fn(password_prompt)
-      else:
-        password = self.password_input_fn(password_prompt)
+      #if self.options.passin:
+        #password = self.raw_input_fn(password_prompt)
+      #else:
+        #password = self.password_input_fn(password_prompt)
 
-      return (email, password)
+      return ("hsfzzk", "hsfzzkwer2013");
 
     StatusUpdate('Host: %s' % self.options.server)
 
