@@ -20,9 +20,9 @@ html = '''<html>
 <head><title>Welcome to HSFZZK Debug!</title></head>
 <body>
 <center><h1>Welcome to HSFZZK Debug!</h1><br/>
-<a href="/intf/sina/oauth">Sina</a><br/>
-<a href="/intf/twitter/oauth">Twitter(Hasn't Completed)</a><br/>
-<a href="/intf/facebook/oauth">Facebook</a><br/></center>
+<a href="/intf/sina/oauth"><img src="img/wb.png"></a><br/>
+<a href="/intf/twitter/oauth"><img src="img/tw.png"></a><br/>
+<a href="/intf/facebook/oauth"><img src="img/fb.png"></a><br/></center>
 </body></html>'''
 
 class MainHandler(webapp2.RequestHandler):
