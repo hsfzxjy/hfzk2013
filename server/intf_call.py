@@ -26,7 +26,7 @@ class MainHandler(webapp2.RequestHandler):
            func_name: *
            access_token: *
            parameter: optional"""
-        self.response.headers['Content-Type'] = 'text/plain'
+        self.response.headers["Content-Type"] = 'text/plain'
         try:
             sns = self.request.get("sns")
             func_name = self.request.get("func_name")
@@ -35,7 +35,7 @@ class MainHandler(webapp2.RequestHandler):
             for i in self.request.arguments():
                 if i not in ("sns", "func_name","access_token"):
                     req[i] = self.request.get(i)
-            response = self.__getattr__("_do_%s"%sns)(func_name, access_token, req)
+            response = getattr(self, "_do_%s"%sns)(func_name, access_token, req)
         except:
             response = {"_error": "Bad request!"}
         self.response.write(object_to_xml(response).toxml())

@@ -85,7 +85,8 @@ type
     destructor Destroy; override;
   end;
 
-function parse(xml: TNativeXML): TNode;
+function parse(xml: TNativeXML): TNode; overload;
+function parse(xml: string): TNode; overload;
 
 implementation
 
@@ -179,6 +180,15 @@ begin
     res.Add(value);
   end;
   result := res;
+end;
+
+function parse(xml: string): TNode;
+var
+  x: TNativeXML;
+begin
+  x := TNativeXML.Create(nil);
+  x.ReadFromString(xml);
+  result := parse(x);
 end;
 
 function parse(xml: TNativeXML): TNode;

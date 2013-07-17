@@ -11,14 +11,16 @@ type
 
   TUser = class
   private
-    AID: Int64;
+    AID: string;
     AccountsList: TStringList;
     TwitterList, SinaList, FacebookList: TStringList;
     function GetAccounts(node: TAccount_Type; name: Variant): TAccount;
   public
-    property ID: int64 read AID;
+    property ID: string read AID;
     property Accounts[node:TAccount_Type;name: Variant]: TAccount read GetAccounts;
 
+    function Combine(ID2: string): boolean; overload;
+    function Combine(User2: TUser): boolean; overload;
     function DeleteAccount(AAccount_Type: TAccount_Type;AAccount_Name: string)
       :boolean; overload;
     function DeleteAccount(account: TAccount): boolean; overload;
@@ -28,7 +30,7 @@ type
     function AddAccount(xml: TNativeXML): boolean; overload;
     function AccountsCount(at: TAccount_Type): Integer;
     procedure Update;
-    constructor Create(ID: int64);
+    constructor Create(ID: string);
     destructor Destroy;override;
   end;
 
@@ -56,8 +58,11 @@ type
     destructor Destroy;override;
   end;
 
+function CreateUser: TUser;
+function get_type(str: string): TAccount_Type;
+
 const
-  TypeStrings : array [0..2] of String = ('sina','twitter','facebook');
+  TypeStrings : array [atSina..atFacebook] of String = ('sina','twitter','facebook');
 
 implementation
 
@@ -68,15 +73,28 @@ var
   Add_URL2: string;
   Combine_URL: string;
 
+function CreateUser: TUser;
+var
+  node: TNode;
+begin
+  try
+    node := GetDataFromURL(Create_URL);
+    result := TUser.Create(node['ID'].Value);
+  finally
+    node.Free;
+    result := nil;
+  end;
+end;
+
 procedure Init;
 begin
   Create_URL := User_Operate_URL+'?method=create';
-  Delete_URL := User_Operate_URL+'?method=delete&ID=%d&account_type=%s&account_name=%s';
-  Add_URL := User_Operate_URL+'?method=add&ID=%d&account_type=%s&account_name=%s' +
+  Delete_URL := User_Operate_URL+'?method=delete&ID=%s&account_type=%s&account_name=%s';
+  Add_URL := User_Operate_URL+'?method=add&ID=%s&account_type=%s&account_name=%s' +
                              '&access_token=%s&expire_in=%d';
-  Add_URL2 := User_Operate_URL+'?method=add&ID=%d&account_type=%s&account_name=%s' +
+  Add_URL2 := User_Operate_URL+'?method=add&ID=%s&account_type=%s&account_name=%s' +
                              '&access_token=%s&access_secret=%s&expire_in=%d';
-  Combine_URL := User_Operate_URL+'?method=combine&ID=%d&ID2=%d';
+  Combine_URL := User_Operate_URL+'?method=combine&ID=%s&ID2=%s';
 end;
 
 function get_type(str: string): TAccount_Type;
@@ -139,7 +157,7 @@ var
   node: TNode;
   list: TStringList;
 begin
-  ty := TypeStrings[Ord(AAccount_Type)];
+  ty := TypeStrings[AAccount_Type];
   url := Format(Add_URL, [AID, ty, AAccount_Name,
                  AAccess_Token, AExpire_In]);
   result := True;
@@ -153,7 +171,7 @@ begin
         self,
         AAccess_Token,
         AAccount_Name,
-        TypeStrings[Ord(AAccount_Type)],
+        TypeStrings[AAccount_Type],
         AExpire_In));
     end;
   finally
@@ -180,7 +198,30 @@ begin
       get_type(node['account_type'].Value), node['expire_in'].Value);
 end;
 
-constructor TUser.Create(ID: int64);
+function TUser.Combine(ID2: string): boolean;
+var
+  url: string;
+  node: TNode;
+begin
+  url := Format(Combine_URL, [AID, ID2]);
+  result := True;
+  try
+    node := web_connect.GetDataFromURL(url);
+    result := not node.HasKey('_error');
+    if result then
+      self.Update;
+  finally
+    node.Free;
+  end;
+end;
+
+function TUser.Combine(User2: TUser): boolean;
+begin
+  result := Combine(User2.ID);
+  FreeAndNil(User2);
+end;
+
+constructor TUser.Create(ID: string);
 begin
   AID := ID;
   AccountsList := TStringList.Create;
@@ -200,12 +241,12 @@ var
   url: string;
   list: TStringList;
 begin
-  url := Format(Delete_URL, [AID, TypeStrings[Ord(AAccount_Type)],
+  url := Format(Delete_URL, [AID, TypeStrings[AAccount_Type],
                 AAccount_Name]);
   result := true;
   try
     node := web_connect.GetDataFromURL(url);
-    result := node.HasKey('_error');
+    result := not node.HasKey('_error');
     if result then
     begin
       list := TStringList(AccountsList.Objects[Ord(AAccount_Type)]);

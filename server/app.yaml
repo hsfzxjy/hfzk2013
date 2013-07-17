@@ -5,8 +5,8 @@ api_version: 1
 threadsafe: yes
 
 handlers:
-- url: /intf/call
-  script: intf_call.app
+- url: /intf/(call|sep)
+  script: intf_\1.app
 
 - url: /intf/(sina|facebook|twitter)/.*
   script: intf_\1.app

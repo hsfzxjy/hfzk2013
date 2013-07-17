@@ -8,5 +8,8 @@
     <Transaction>2013/07/09 13:22:04.820.dfm,E:\Zk Cup\Source\client\Source\Main.dfm=E:\Zk Cup\Source\client\Source\UI\Main.dfm</Transaction>
     <Transaction>2013/07/12 17:15:52.943.pas,E:\Zk Cup\Source\client\Source\Unit1.pas=E:\Zk Cup\Source\client\Source\Kernel\web_connect.pas</Transaction>
     <Transaction>2013/07/12 21:01:31.774.pas,E:\Zk Cup\Source\client\Source\Unit1.pas=E:\Zk Cup\Source\client\Source\Kernel\Cache.pas</Transaction>
+    <Transaction>2013/07/13 19:57:07.046.pas,E:\Zk Cup\Source\client\Source\Unit1.pas=E:\Zk Cup\Source\client\Source\UI\EditEx.pas</Transaction>
+    <Transaction>2013/07/13 19:57:07.046.dfm,E:\Zk Cup\Source\client\Source\Unit1.dfm=E:\Zk Cup\Source\client\Source\UI\EditEx.dfm</Transaction>
+    <Transaction>2013/07/13 23:07:12.191.pas,E:\Zk Cup\Source\client\Three-Part\RichEditEx\RichEditEx.pas=</Transaction>
   </Transactions>
 </BorlandProject>

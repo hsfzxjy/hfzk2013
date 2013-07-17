@@ -11,8 +11,8 @@ class UserError(StandardError):
         return self.__msg
 
 def get_data(param):
-    if isinstance(param, int):
-        return get_data_from_ID(param)
+    if isinstance(param, int) or isinstance(param, str) or isinstance(param, unicode):
+        return get_data_from_ID(int(param))
     elif isinstance(param, modeldef.User):
         return get_data_from_user(param)
     elif isinstance(param, modeldef.SNSAccount):
@@ -26,8 +26,8 @@ def get_data(param):
     
 def get_user(param):
     result = None
-    if isinstance(param, int):
-        result = get_user_from_ID(param)
+    if isinstance(param, int) or isinstance(param, str) or isinstance(param, unicode):
+        result = get_user_from_ID(int(param))
     elif isinstance(param, dict):
         result = get_user_from_account(param['account_type'], param['account_name'])
     elif isinstance(param, modeldef.SNSAccount):
@@ -57,7 +57,7 @@ def get_data_from_user(user):
 
 def get_user_from_ID(ID):
     try:
-        gql = modeldef.User.gql("WHERE ID = %s" % str(ID))
+        gql = modeldef.User.gql("WHERE ID = '%s'" % str(ID))
     except Exception:
         gql = None
         raise UserError('User query error.')
@@ -79,13 +79,13 @@ def get_next_ID():
     else:
         return user.ID + 1
 
-def insert_data(data, ID = 0, user = None):
+def insert_data(data, ID = '', user = None):
     """
         e.g. insert_data(0001, {"user_name":13434312012, "access_token":XXX,
           "sns":"sina"})
     """
     if ID:
-        _user = get_user_from_ID(ID)
+        _user = get_user_from_ID(int(ID))
         user = _user
     if not user:
         raise UserError("ID %s does not exist!" % str(ID))

@@ -5,19 +5,15 @@ interface
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
   Dialogs, NativeXML,Global, User_Intf, Data_Intf, StdCtrls, OleCtrls,
-  SHDocVw, ExtCtrls;
+  SHDocVw, ExtCtrls, EditEx;
 
 type
   TForm2 = class(TForm)
-    Memo1: TMemo;
-    Splitter1: TSplitter;
-    wb: TWebBrowser;
-    Button1: TButton;
+    ScrollBox1: TScrollBox;
     procedure FormCreate(Sender: TObject);
-    procedure FormDestroy(Sender: TObject);
-    procedure Button1Click(Sender: TObject);
   private
     User: TUser;
+    re: TRichEditEx;
     { Private declarations }
   public
     { Public declarations }
@@ -28,24 +24,22 @@ var
 
 implementation
 
-uses mshtml, web_connect;
+uses web_connect,Jpeg;
 
 {$R *.dfm}
 
-procedure TForm2.Button1Click(Sender: TObject);
-begin
-  User.DeleteAccount(atFacebook, '100006035650605');
-end;
-
 procedure TForm2.FormCreate(Sender: TObject);
+var
+  api:TAPICall;
 begin
-  wb.Navigate(Host_URL);
-  User := TUser.Create(7);
-end;
-
-procedure TForm2.FormDestroy(Sender: TObject);
-begin
-  User.Free;
+  re := TRichEditEx.Create(nil);
+  re.Parent := ScrollBox1;
+  re.Height := 400;
+  re.Align := alTop;
+  re.Text := 'ÄãºÃhello'#13'sgdas#23#';
+  re.AccountName := 'HSFZXJY';
+  re.ImageURL := 'http://ww4.sinaimg.cn/thumbnail/afbd4572jw1e6i2jvea15j20dw08i75w.jpg';
+  re.Done;
 end;
 
 end.

@@ -40,7 +40,7 @@ class User_QueryHandler(webapp2.RequestHandler):
         try:
             info = userop.get_data(ID)
         except userop.UserError, e:
-            info = {"error" : str(e)}
+            info = {"_error" : str(e)}
         res = code.object_to_xml(info).toxml() if type == 'xml' else \
                         code.object_to_json(info)
         self.response.write(res)
@@ -64,13 +64,13 @@ class User_OperateHandler(webapp2.RequestHandler):
         #except:
             #res = None
         if not res:
-            res = {'error':'Somethind has been wrong!'}
+            res = {'_error':'Somethind has been wrong!'}
         self.response.write(code.object_to_xml(res).toxml())
         
     def _do_create(self, data):
         user = modeldef.User()
         user.put()
-        user.ID = user.key().id()
+        user.ID = str(user.key().id())
         user.put()
         return {'ID': user.ID}
         
@@ -81,7 +81,7 @@ class User_OperateHandler(webapp2.RequestHandler):
         '''
         res = {}
         if userop.get_account(data):
-            res['OK'] = 'The account has already existed!'
+            res['_error'] = 'The account has already existed!'
             return res
         userop.insert_data(data, ID = self.__ID)
         res['OK'] = 'Add successfully!'
@@ -97,7 +97,9 @@ class User_OperateHandler(webapp2.RequestHandler):
         if account:
             account.delete()
             res['OK'] = 'Delete successfully!'
-            return res
+        else:
+            res['_error'] = 'The account is not existed!'
+        return res
     
     def _do_combine(self, data):
         '''
@@ -105,12 +107,17 @@ class User_OperateHandler(webapp2.RequestHandler):
         '''
         user2 = userop.get_user(int(data['ID2']))
         user = userop.get_user(self.__ID)
-        accounts = user2.accounts
-        for acc in accounts:
-            acc.owner = user
-            acc.put()
-        user2.delete()
-        return {'OK': 'Combine successfully!'}
+        res = {}
+        if user2:
+            accounts = user2.accounts
+            for acc in accounts:
+                acc.owner = user
+                acc.put()
+            user2.delete()
+            res = {'OK': 'Combine successfully!'}
+        else:
+            res = {'_error': 'The second user is not existed!'}
+        return res
     
 app = webapp2.WSGIApplication([
     ('/user/login', User_LoginHandler), 

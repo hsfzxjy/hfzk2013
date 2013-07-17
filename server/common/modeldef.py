@@ -5,7 +5,7 @@ import open.facebook
 class User(db.Model):
     '''The user model definition'''
     
-    ID = db.IntegerProperty()
+    ID = db.StringProperty()
     
 class SNSAccount(db.Model):
     '''The SNS Account model definition'''
