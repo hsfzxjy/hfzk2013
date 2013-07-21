@@ -1302,7 +1302,7 @@ end;
 procedure TCustomRichView.Clear;
 begin
   ClearTemporal;
-  RVData.Clear;     
+  RVData.Clear;
 end;
 {------------------------------------------------------------------------------}
 function TCustomRichView.GetFirstJumpNo: Integer;

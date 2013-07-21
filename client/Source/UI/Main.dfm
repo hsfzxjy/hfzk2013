@@ -1,29 +1,27 @@
-object Form2: TForm2
+object MainForm: TMainForm
   Left = 0
   Top = 0
-  Caption = 'Form2'
+  VertScrollBar.Smooth = True
+  VertScrollBar.Tracking = True
   ClientHeight = 372
-  ClientWidth = 416
+  ClientWidth = 502
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
   Font.Height = -11
   Font.Name = 'Tahoma'
   Font.Style = []
-  OldCreateOrder = False
+  OldCreateOrder = True
   OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
-  object ScrollBox1: TScrollBox
-    Left = 0
-    Top = 0
-    Width = 416
-    Height = 372
-    Align = alClient
+  object Button1: TButton
+    Left = 216
+    Top = 328
+    Width = 75
+    Height = 25
+    Caption = 'Button1'
     TabOrder = 0
-    ExplicitLeft = 72
-    ExplicitTop = 40
-    ExplicitWidth = 393
-    ExplicitHeight = 329
+    OnClick = Button1Click
   end
 end

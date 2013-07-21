@@ -15,7 +15,7 @@ type
 
   end;
 
-  TNode = class
+  TNode = class(TPersistent)
   private
     AValue: Variant;
     AParent: TNode;
@@ -35,6 +35,7 @@ type
     property NodeType: TNodeType read ANodeType write ANodeType;
     property Node[index: Variant]: TNode read GetNode write SetNode;default;
 
+    procedure Assign(source: TPersistent); override;
     function HasChildren: Boolean; virtual;
     function Count: Integer; virtual; abstract;
     function HasKey(key: string):boolean; virtual; abstract;
@@ -57,6 +58,7 @@ type
     procedure SetNode(Index: Variant;const Value: TNode); override;
     function GetValues(str: String): TNode;override;
   public
+    procedure Assign(source: TPersistent); override;
     function HasKey(key: string): boolean; override;
     function Count: Integer; override;
     function HasChildren: Boolean; override;
@@ -76,6 +78,7 @@ type
     procedure SetNode(Index: Variant;const Value: TNode); override;
     function GetItems(index: Integer): TNode;override;
   public
+    procedure Assign(source: TPersistent); override;
     function Count: Integer; override;
     function HasChildren: Boolean; override;
     procedure Add(Value: TNode);override;
@@ -201,6 +204,22 @@ end;
 
 { TNode }
 
+procedure TNode.Assign(source: TPersistent);
+var
+  node: TNode;
+begin
+  if source is TNode then
+  begin
+    node := source as TNode;
+    self.Value := node.Value;
+    self.AParent := node.AParent;
+    self.AName := node.AName;
+    self.ANodeType := node.ANodeType;
+    exit;
+  end;
+  inherited;
+end;
+
 constructor TNode.Create(parent: TNode);
 begin
   AParent := parent;
@@ -237,6 +256,19 @@ begin
   node.Name := Name;
   node.Value := Value;
   Add(Key, node);
+end;
+
+procedure TNodeDict.Assign(source: TPersistent);
+var
+  node: TNodeDict;
+begin
+  if source is TNodeDict then
+  begin
+    node := source as TNodeDict;
+    self.ADict.Assign(node.ADict);
+    exit;
+  end;
+  inherited;
 end;
 
 function TNodeDict.Count: Integer;
@@ -314,6 +346,19 @@ begin
   node.Name := Name;
   node.Value := Value;
   AList.Add(node);
+end;
+
+procedure TNodeList.Assign(source: TPersistent);
+var
+  node: TNodeList;
+begin
+  if source is TPersistent then
+  begin
+    node := source as TNodeList;
+    node.AList.Assign(node.AList);
+    exit;
+  end;
+  inherited;
 end;
 
 procedure TNodeList.Add(Value: TNode);

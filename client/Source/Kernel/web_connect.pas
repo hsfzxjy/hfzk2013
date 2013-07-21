@@ -33,6 +33,7 @@ begin
   uri.Free;
   m := TMemoryStream.Create;
   Get(url, m);
+  m.Position := 0;
   if ext = '.gif' then
   begin
     gif := TGifImage.Create;

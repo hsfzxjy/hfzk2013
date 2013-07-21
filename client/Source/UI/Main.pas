@@ -1,26 +1,29 @@
 unit Main;
 
+{把reControl放到retext上}
+
 interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, NativeXML,Global, User_Intf, Data_Intf, StdCtrls, OleCtrls,
-  SHDocVw, ExtCtrls, EditEx;
+  Dialogs, NativeXML, Global, User_Intf, Data_Intf, StdCtrls,
+  SNSView;
 
 type
-  TForm2 = class(TForm)
-    ScrollBox1: TScrollBox;
+  TMainForm = class(TForm)
+    Button1: TButton;
     procedure FormCreate(Sender: TObject);
+    procedure Button1Click(Sender: TObject);
   private
     User: TUser;
-    re: TRichEditEx;
     { Private declarations }
   public
+    sns: TSNSViewer;
     { Public declarations }
   end;
 
 var
-  Form2: TForm2;
+  MainForm: TMainForm;
 
 implementation
 
@@ -28,18 +31,32 @@ uses web_connect,Jpeg;
 
 {$R *.dfm}
 
-procedure TForm2.FormCreate(Sender: TObject);
+procedure TMainForm.Button1Click(Sender: TObject);
+begin
+  sns.Update;
+end;
+
+procedure TMainForm.FormCreate(Sender: TObject);
 var
   api:TAPICall;
+  context:TSNSContext;
+  i:integer;
 begin
-  re := TRichEditEx.Create(nil);
-  re.Parent := ScrollBox1;
-  re.Height := 400;
-  re.Align := alTop;
-  re.Text := '你好hello'#13'sgdas#23#';
-  re.AccountName := 'HSFZXJY';
-  re.ImageURL := 'http://ww4.sinaimg.cn/thumbnail/afbd4572jw1e6i2jvea15j20dw08i75w.jpg';
-  re.Done;
+  sns := TSNSViewer.Create(self);
+  sns.Parent := self;
+  sns.Align := alTop;
+  sns.Height := 300;
+  context := TSNSContext.Create;
+  for I := 0 to 0 do
+  begin
+  context.AccountName := 'HSFZXJY';
+  context.Text := '今天天气真好@HFer__- #天气#';
+  context.Counts.Good := 12;
+  context.ProfileImageURL := 'http://tp2.sinaimg.cn/1772543313/50/40021176578/1';
+  sns.AddContext(context);
+  end;
+  context.Free;
+  sns.DoDraw;
 end;
 
 end.
