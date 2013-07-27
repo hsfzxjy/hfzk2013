@@ -11,6 +11,9 @@ handlers:
 - url: /intf/(sina|facebook|twitter)/.*
   script: intf_\1.app
 
+- url: /intf/smart
+  script: intf_smart.app
+
 - url: /user/.*
   script: user.app
 

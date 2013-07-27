@@ -21,6 +21,7 @@ type
     AParent: TNode;
     ANodeType: TNodeType;
     AName: String;
+    FXML: string;
   protected
     function GetValues(str: String): TNode;virtual;abstract;
     function GetItems(Index: Integer): TNode;virtual;abstract;
@@ -34,6 +35,7 @@ type
     property Name: String read AName write AName;
     property NodeType: TNodeType read ANodeType write ANodeType;
     property Node[index: Variant]: TNode read GetNode write SetNode;default;
+    property XML: string read FXML;
 
     procedure Assign(source: TPersistent); override;
     function HasChildren: Boolean; virtual;
@@ -128,6 +130,7 @@ begin
   end;
   res.Name := xml.Name;
   res.Value := value;
+  res.FXML := xml.WriteToString;
   result := res;
 end;
 
@@ -155,6 +158,7 @@ begin
     end;
     res.Add(name, value);
   end;
+  res.FXML := xml.WriteToString;
   result := res;
 end;
 
@@ -182,6 +186,7 @@ begin
     value.Name := name;
     res.Add(value);
   end;
+  res.FXML := xml.WriteToString;
   result := res;
 end;
 

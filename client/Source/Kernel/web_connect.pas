@@ -4,49 +4,88 @@ interface
 
 uses
   Sysutils, NativeXML, XMLObj, Classes, WinINet, Windows,
-  IdURI, JPEG, GifImg, Graphics;
+  IdURI, Graphics,  Cache_, Forms;
 
 type
+  TWebThread = class(TThread)
+  private
+    FRes: TStream;
+    FURL: string;
+    FData: string;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(CreateSuspended: boolean;url, data: string;stream: TStream);
+  end;
+  EURLGetError = class (Exception);
 
-EURLGetError = class (Exception);
-
-function GetStringFromURL(url: string): WideString;
 function GetDataFromURL(url: string): TNode;
-procedure Get(url: string;res: TStream); overload;
-procedure Post(url, data:string;res:TStream); overload;
-function Get(url: string): string; overload;
-function Post(url, data: string): string; overload;
+function SafeGetDataFromURL(url: string): TNode;
 function GetPictureFromURL(url: string): TGraphic;
+
+//Basic web connection functions
+function Get(url: string): string; overload;
+procedure Get(url: string;res: TStream); overload;
+function Post(url, data: string): string; overload;
+procedure Post(url, data:string;res:TStream); overload;
 
 implementation
 
+uses Global;
+
+function SafeGetDataFromURL(url: string): TNode;
+var
+  node: TNode;
+begin
+  repeat
+    node := GetDataFromURL(url);
+  until not node.HasKey('_error');
+  result := node;
+end;
+
 function GetPictureFromURL(url: string): TGraphic;
 var
-  jpg: TJpegImage;
-  gif: TGifImage;
   m: TMemoryStream;
-  uri: TIDURI;
-  ext: string;
+  s: string;
 begin
-  uri := TIDURI.Create(url);
-  ext := LowerCase(ExtractFileExt(uri.Document));
-  uri.Free;
+  s := Hash(url);
+  result := Cache.GetPicture(s);
+  if result <> nil then
+  begin
+    exit;
+  end;
   m := TMemoryStream.Create;
   Get(url, m);
-  m.Position := 0;
-  if ext = '.gif' then
-  begin
-    gif := TGifImage.Create;
-    gif.LoadFromStream(m);
-    gif.Animate := true;
-    result := gif;
-  end
-  else
-  begin
-    jpg := TJPEGImage.Create;
-    jpg.LoadFromStream(m);
-    result := jpg
-  end;  
+  result := nil;
+  try
+    result := LoadPicture(m);
+    if result <> nil then
+      Cache.SetPicture(s, result);
+  finally
+    m.Free;
+  end;
+end;
+
+procedure Post(url: string;data: string;res: TStream);
+var
+  thread: TWebThread;
+begin
+  thread := TWebThread.Create(True, url, data, res);
+  thread.Resume;
+  while not thread.Terminated do
+    Application.ProcessMessages;
+  thread.Free;
+end;
+
+procedure Get(url: string;res: TStream);
+var
+  stream: TWebThread;
+begin
+  stream := TWebThread.Create(True, url, '', res);
+  stream.Resume;
+  while not stream.Terminated do
+    Application.ProcessMessages;
+  stream.Free;
 end;
 
 function Get(url: string): string;
@@ -75,7 +114,7 @@ begin
   end;
 end;
 
-procedure Post(url, data:string;res:TStream);
+procedure _Post(url, data:string;res:TStream);
 var
   hInt,hConn,hreq:HINTERNET;
   buffer:PChar;
@@ -118,7 +157,7 @@ begin
  FreeMem(buffer);
 end;
 
-procedure Get(url: string;res: TStream);
+procedure _Get(url: string;res: TStream);
 var
   hInt,hUrl:HINTERNET;
   buffer:PChar;
@@ -138,42 +177,42 @@ begin
  FreeMem(buffer);
 end;
 
-function GetStringFromURL(url: string): WideString;
-var
-  xml: TNativeXML;
-begin
-  xml := TNativeXML.Create(nil);
-  result := '';
-  try
-    xml.LoadFromURL(url);
-    result := xml.WriteToLocalUnicodeString;
-  except
-    xml.Free;
-    raise EURLGetError.Create('Data get failed!');
-    exit;
-  end;
-  xml.Free;
-end;
-
 function GetDataFromURL(url: string): TNode;
 var
-  xml: TNativeXML;
   node: TNode;
+  xml: string;
 begin
-  xml := TNativeXML.Create(nil);
   node := TNode.Create(nil);
   try
-    xml.LoadFromURL(url);
+    xml := Get(url);
     node := parse(xml);
   except
-    xml.Free;
     FreeAndNil(node);
     result := node;
     raise EURLGetError.Create('Data get failed!');
     exit;
   end;
-  xml.Free;
   result := node;
+end;
+
+{ TWebThread }
+
+constructor TWebThread.Create(CreateSuspended: boolean; url, data: string;stream: TStream);
+begin
+  inherited Create(CreateSuspended);
+  FURL := url;
+  FData := data;
+  FRes := stream;
+  self.FreeOnTerminate := False;
+end;
+
+procedure TWebThread.Execute;
+begin
+  if Fdata <> '' then
+    _Post(Furl, Fdata, FRes)
+  else
+    _Get(FURL, FRes);
+  Terminate;
 end;
 
 end.

@@ -11,6 +11,9 @@ import urllib
 from urllib import quote
 from google.appengine.api import urlfetch
 from common.utils import code
+import logging
+import __global as glb
+from copy import deepcopy
 
 do_quote = lambda(li):tuple([str(quote(i)) for i in li])
 make_oauth_url = lambda:AUTHORIZE_URL%do_quote([CLIENT_ID, CLIENT_SECRET, PERMISSION, REDIRECT_URI])
@@ -24,8 +27,11 @@ class API(object):
     def __getattr__(self, attr):
         
         def wrap(**kw):
-            url = BASE_URL % (attr.replace('__','/'), self.__access_token)+ \
-                urllib.urlencode(kw)
+            at = attr[1:] if attr[0] == '_' else attr
+            url = BASE_URL % (at.replace('__','/'), self.__access_token)
+            if kw:
+                url += '&'+urllib.urlencode(kw)
+            logging.info(url)
             result = urlfetch.fetch(url).content
             result = code.json_to_object(result)
             return result
@@ -40,3 +46,55 @@ class Facebook(object):
         
     def expire_in(self):
         return 8
+    
+    def timeline(self, **kw):
+        limit = int(kw['limit']) if kw.has_key('limit') else 100
+        res = self.api.me(fields = 'feed.limit(%s)'%str(limit))['feed']['data']
+        response = []
+        for status in res:
+            s = deepcopy(glb.Status)
+            s['id'] = status['id']
+            s['text'] = status['message'] if status.has_key('message') else status['story']
+            s['image_url'] = status['picture'] if status.has_key('picture') else ''
+            s['application'] = status['application']['name'] if \
+                status.has_key('application') else ''
+            s['user'] = self.user(ID = status['from']['id'])
+            s['time'] = status['created_time']
+            if status.has_key('comments'):
+                for c in status['comments']['data']:
+                    com = deepcopy(glb.Comment)
+                    com['text'] = c['message']
+                    com['time'] = c['created_time']
+                    com['id'] = c['id']
+                    com['user'] = self.user(ID = c['from']['id'])
+                    s['comments'].append(com)
+            s['good_count'] = status['like']['count'] if status.has_key('like') else 0
+            s['comment_count'] = len(s['comments'])
+            response.append(s)
+        return {'result': response}
+    
+    def user(self, **kw):
+        ID = kw['ID'] if kw.has_key('ID') else ''
+        res = getattr(self.api, '_'+ID)()
+        response = deepcopy(glb.User)
+        response['id'] = res['id']
+        response['screen_name'] = res['name']
+        response['user_name'] = res['username'] if res.has_key('username') else ''
+        response['gender'] = res['gender']
+        response['website'] = res['website'] if res.has_key('website') else ''
+        response['profile_image_url'] = \
+            getattr(self.api, '_'+ID)(fields = 'picture')['picture']['data']['url']
+        logging.info(response)
+        return response
+    
+    def friends(self, **kw):
+        func = '_'+kw['ID'] if kw.has_key('ID') else 'me'
+        res = getattr(self.api, func)(fields = 'friends')['friends']['data']
+        logging.info(str(res))
+        
+        response = deepcopy(glb.Friends)
+        for data in res:
+            logging.info(data['id'])
+            response['friends'].append(self.user(ID = data['id']))
+            
+        return response

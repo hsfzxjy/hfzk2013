@@ -103,7 +103,7 @@ def insert_data(data, ID = '', user = None):
 def modify_data(param, **kw):
     account = get_account(param)
     if not account:
-        raise UserError('The account is invalid!')
+        return False
     for k,v in kw.iteritems():
         setattr(account, k, v)
     account.put()
@@ -122,12 +122,12 @@ def login(data):
 
 def get_account(data):
     if isinstance(data, dict):
-   # try:
-        gql = modeldef.SNSAccount.gql("WHERE account_name = '%s' AND account_type = '%s'" %(
-        data['account_name'], data['account_type']))
-        acc = gql.get()
-    #except:
-     #   acc = None
+        try:
+            gql = modeldef.SNSAccount.gql("WHERE account_name = '%s' AND account_type = '%s'" %(
+            data['account_name'], data['account_type']))
+            acc = gql.get()
+        except:
+            acc = None
     elif isinstance(data, modeldef.SNSAccount):
         acc = data
     else:

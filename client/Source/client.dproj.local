@@ -23,5 +23,19 @@
     <Transaction>2013/07/21 17:10:21.841.dfm,E:\Zk Cup\Source\client\Source\Unit1.dfm=E:\Zk Cup\Source\client\Source\UI\SNSView.dfm</Transaction>
     <Transaction>2013/07/21 22:26:45.482.pas,E:\Zk Cup\Source\client\Source\UI\EditEx.pas=</Transaction>
     <Transaction>2013/07/21 22:26:45.482.dfm,E:\Zk Cup\Source\client\Source\UI\EditEx.dfm=</Transaction>
+    <Transaction>2013/07/23 17:34:31.403.pas,E:\Zk Cup\Source\client\Source\Unit1.pas=E:\Zk Cup\Source\client\Source\UI\MainHelper.pas</Transaction>
+    <Transaction>2013/07/23 23:18:38.412.pas,E:\Zk Cup\Source\client\Source\Kernel\Cache.pas=E:\Zk Cup\Source\client\Source\Kernel\Cache_.pas</Transaction>
+    <Transaction>2013/07/24 11:17:21.082.pas,E:\Zk Cup\Source\client\Source\Unit1.pas=E:\Zk Cup\Source\client\Source\UI\CustomView.pas</Transaction>
+    <Transaction>2013/07/24 11:17:21.082.dfm,E:\Zk Cup\Source\client\Source\Unit1.dfm=E:\Zk Cup\Source\client\Source\UI\CustomView.dfm</Transaction>
+    <Transaction>2013/07/24 11:57:13.086.pas,E:\Zk Cup\Source\client\Source\UI\SNSView.pas=E:\Zk Cup\Source\client\Source\UI\SNSVie.pas</Transaction>
+    <Transaction>2013/07/24 11:57:13.086.dfm,E:\Zk Cup\Source\client\Source\UI\SNSView.dfm=E:\Zk Cup\Source\client\Source\UI\SNSVie.dfm</Transaction>
+    <Transaction>2013/07/24 11:57:22.967.pas,E:\Zk Cup\Source\client\Source\Unit1.pas=E:\Zk Cup\Source\client\Source\UI\SNSView.pas</Transaction>
+    <Transaction>2013/07/24 11:57:22.967.dfm,E:\Zk Cup\Source\client\Source\Unit1.dfm=E:\Zk Cup\Source\client\Source\UI\SNSView.dfm</Transaction>
+    <Transaction>2013/07/24 19:53:37.357.pas,E:\Zk Cup\Source\client\Source\Unit1.pas=E:\Zk Cup\Source\client\Source\UI\Dialogs\FrmLogin.pas</Transaction>
+    <Transaction>2013/07/24 19:53:37.357.dfm,E:\Zk Cup\Source\client\Source\Unit1.dfm=E:\Zk Cup\Source\client\Source\UI\Dialogs\FrmLogin.dfm</Transaction>
+    <Transaction>2013/07/24 20:51:38.131.pas,E:\Zk Cup\Source\client\Source\Unit1.pas=E:\Zk Cup\Source\client\Source\UI\Dialogs\FrmWaiting.pas</Transaction>
+    <Transaction>2013/07/24 20:51:38.131.dfm,E:\Zk Cup\Source\client\Source\Unit1.dfm=E:\Zk Cup\Source\client\Source\UI\Dialogs\FrmWaiting.dfm</Transaction>
+    <Transaction>2013/07/27 18:08:18.592.pas,E:\Zk Cup\Source\client\Source\Unit1.pas=E:\Zk Cup\Source\client\Source\Kernel\UIThread.pas</Transaction>
+    <Transaction>2013/07/27 18:42:41.552.pas,E:\Zk Cup\Source\client\Source\Kernel\UIThread.pas=</Transaction>
   </Transactions>
 </BorlandProject>

@@ -31,10 +31,10 @@
     <DCC_DcuOutput>E:\Zk Cup\Source\client\Lib</DCC_DcuOutput>
     <DCC_ObjOutput>E:\Zk Cup\Source\client\Lib</DCC_ObjOutput>
     <DCC_HppOutput>E:\Zk Cup\Source\client\Lib</DCC_HppOutput>
-    <DCC_UnitSearchPath>E:\Zk Cup\Source\client\Three-Part\NativeXML;E:\Zk Cup\Source\client\Source\Kernel;E:\Zk Cup\Source\client\Source\UI;E:\Program Files\Delphi Component\TPerlRegEx;E:\Zk Cup\Source\client\Three-Part\RichView</DCC_UnitSearchPath>
-    <DCC_ResourcePath>E:\Zk Cup\Source\client\Three-Part\NativeXML;E:\Zk Cup\Source\client\Source\Kernel;E:\Zk Cup\Source\client\Source\UI;E:\Program Files\Delphi Component\TPerlRegEx;E:\Zk Cup\Source\client\Three-Part\RichView</DCC_ResourcePath>
-    <DCC_ObjPath>E:\Zk Cup\Source\client\Three-Part\NativeXML;E:\Zk Cup\Source\client\Source\Kernel;E:\Zk Cup\Source\client\Source\UI;E:\Program Files\Delphi Component\TPerlRegEx;E:\Zk Cup\Source\client\Three-Part\RichView</DCC_ObjPath>
-    <DCC_IncludePath>E:\Zk Cup\Source\client\Three-Part\NativeXML;E:\Zk Cup\Source\client\Source\Kernel;E:\Zk Cup\Source\client\Source\UI;E:\Program Files\Delphi Component\TPerlRegEx;E:\Zk Cup\Source\client\Three-Part\RichView</DCC_IncludePath>
+    <DCC_UnitSearchPath>E:\Zk Cup\Source\client\Three-Part\NativeXML;E:\Zk Cup\Source\client\Source\Kernel;E:\Zk Cup\Source\client\Source\UI;E:\Program Files\Delphi Component\TPerlRegEx;E:\Zk Cup\Source\client\Three-Part\RichView;E:\Zk Cup\Source\client\Three-Part\pngimage;E:\Zk Cup\Source\client\Source\UI\Dialogs</DCC_UnitSearchPath>
+    <DCC_ResourcePath>E:\Zk Cup\Source\client\Three-Part\NativeXML;E:\Zk Cup\Source\client\Source\Kernel;E:\Zk Cup\Source\client\Source\UI;E:\Program Files\Delphi Component\TPerlRegEx;E:\Zk Cup\Source\client\Three-Part\RichView;E:\Zk Cup\Source\client\Three-Part\pngimage;E:\Zk Cup\Source\client\Source\UI\Dialogs</DCC_ResourcePath>
+    <DCC_ObjPath>E:\Zk Cup\Source\client\Three-Part\NativeXML;E:\Zk Cup\Source\client\Source\Kernel;E:\Zk Cup\Source\client\Source\UI;E:\Program Files\Delphi Component\TPerlRegEx;E:\Zk Cup\Source\client\Three-Part\RichView;E:\Zk Cup\Source\client\Three-Part\pngimage;E:\Zk Cup\Source\client\Source\UI\Dialogs</DCC_ObjPath>
+    <DCC_IncludePath>E:\Zk Cup\Source\client\Three-Part\NativeXML;E:\Zk Cup\Source\client\Source\Kernel;E:\Zk Cup\Source\client\Source\UI;E:\Program Files\Delphi Component\TPerlRegEx;E:\Zk Cup\Source\client\Three-Part\RichView;E:\Zk Cup\Source\client\Three-Part\pngimage;E:\Zk Cup\Source\client\Source\UI\Dialogs</DCC_IncludePath>
     <DCC_Warnings>False</DCC_Warnings>
   </PropertyGroup>
   <ProjectExtensions>
@@ -48,12 +48,22 @@
     <DelphiCompile Include="client.dpr">
       <MainSource>MainSource</MainSource>
     </DelphiCompile>
-    <DCCReference Include="Kernel\Cache.pas" />
+    <DCCReference Include="Kernel\Cache_.pas" />
     <DCCReference Include="Kernel\Data_Intf.pas" />
     <DCCReference Include="Kernel\Global.pas" />
     <DCCReference Include="Kernel\User_Intf.pas" />
     <DCCReference Include="Kernel\web_connect.pas" />
     <DCCReference Include="Kernel\XMLObj.pas" />
+    <DCCReference Include="UI\CustomView.pas">
+      <Form>CustomViewer</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="UI\Dialogs\FrmLogin.pas">
+      <Form>LoginForm</Form>
+    </DCCReference>
+    <DCCReference Include="UI\Dialogs\FrmWaiting.pas">
+      <Form>WaitingForm</Form>
+    </DCCReference>
     <DCCReference Include="UI\Main.pas">
       <Form>MainForm</Form>
     </DCCReference>
