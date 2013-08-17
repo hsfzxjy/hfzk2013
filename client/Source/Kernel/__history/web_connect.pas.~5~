@@ -1,0 +1,236 @@
+unit web_connect;
+
+interface
+
+uses
+  Sysutils, NativeXML, XMLObj, Classes, WinINet, Windows,
+  IdURI, Graphics,  Cache_, Forms;
+
+type
+  TWebThread = class(TThread)
+  private
+    FRes: TStream;
+    FURL: string;
+    FData: string;
+  protected
+    procedure Execute; override;
+  public
+    constructor Create(CreateSuspended: boolean;url, data: string;stream: TStream);
+  end;
+  EURLGetError = class (Exception);
+
+function GetDataFromURL(url: string): TNode;
+function SafeGetData(url: string): TNode;
+function GetPictureFromURL(url: string): TGraphic;
+
+//Basic web connection functions
+function Get(url: string): string; overload;
+procedure Get(url: string;res: TStream); overload;
+function Post(url, data: string): string; overload;
+procedure Post(url, data:string;res:TStream); overload;
+
+implementation
+
+uses Global;
+
+function CheckConnection(url: string): boolean;
+begin
+  result := InternetCheckConnection(PChar(GetFullURLPath(url)), 1, 0);
+end;
+
+function SafeGetData(url: string): TNode;
+var
+  node: TNode;
+  error_code: Integer;
+begin
+  repeat
+    node := GetDataFromURL(url);
+    if not node.HasKey('_error') then break;
+    error_code := node['_error_code'].Value;
+    case error_code of
+      2:
+      begin
+        node.Free;
+        raise Global.EAccountExpiredError.Create('');
+      end;
+      0: continue;
+    end;
+  until True;
+  result := node;
+end;
+
+function GetPictureFromURL(url: string): TGraphic;
+var
+  m: TMemoryStream;
+  s: string;
+begin
+  s := Hash(url);
+  result := Cache.GetPicture(s);
+  if result <> nil then
+  begin
+    exit;
+  end;
+  m := TMemoryStream.Create;
+  Get(url, m);
+  result := nil;
+  try
+    result := LoadPicture(m);
+    if result <> nil then
+      Cache.SetPicture(s, result);
+  finally
+    m.Free;
+    result := GetPictureFromPath(Global.Broken_Img_Path);
+  end;
+end;
+
+procedure Post(url: string;data: string;res: TStream);
+var
+  thread: TWebThread;
+begin
+  if not CheckConnection(url) then
+    raise EConnectError.Create(url);
+  thread := TWebThread.Create(True, url, data, res);
+  thread.Resume;
+  while not thread.Terminated do
+    Application.ProcessMessages;
+  thread.Free;
+end;
+
+procedure Get(url: string;res: TStream);
+var
+  stream: TWebThread;
+begin
+ // if not CheckConnection(url) then
+ //   raise EConnectError.Create(url);
+  stream := TWebThread.Create(True, url, '', res);
+  stream.Resume;
+  while not stream.Terminated do
+    Application.ProcessMessages;
+  stream.Free;
+end;
+
+function Get(url: string): string;
+var
+  s: TStringStream;
+begin
+  s := TStringStream.Create('');
+  try
+    Get(url, s);
+    result := s.DataString;
+  finally
+    s.Free;
+  end;
+end;
+
+function Post(url, data: string): string;
+var
+  s: TStringStream;
+begin
+  s := TStringStream.Create('');
+  try
+    Get(url, s);
+    result := s.DataString;
+  finally
+    s.Free;
+  end;
+end;
+
+procedure _Post(url, data:string;res:TStream);
+var
+  hInt,hConn,hreq:HINTERNET;
+  buffer:PChar;
+  dwRead, dwFlags:cardinal;
+  port: Word;
+  uri: TIdURI;
+  proto, host, path: string;
+begin
+  uri := TIdURI.Create(url);
+  host := uri.Host;
+  path := uri.Path + uri.Document;
+  proto := uri.Protocol;
+  uri.Free;
+  if UpperCase(proto) = 'HTTPS' then
+  begin
+    port := INTERNET_DEFAULT_HTTPS_PORT;
+    dwFlags := INTERNET_FLAG_SECURE;
+  end
+  else
+  begin
+    port := INTERNET_INVALID_PORT_NUMBER;
+    dwFlags := INTERNET_FLAG_RELOAD;
+  end;
+  hInt := InternetOpen('Delphi',INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
+  hConn := InternetConnect(hInt,PChar(host),port,nil,nil,INTERNET_SERVICE_HTTP,0,0);
+  hreq := HttpOpenRequest(hConn,'POST',PChar(Path),'HTTP/1.1',nil,nil,dwFlags,0);
+  GetMem(buffer, 65536);
+  if HttpSendRequest(hReq,nil,0,PChar(data),Length(data)) then
+  begin
+    dwRead:=0;
+    repeat
+      InternetReadFile(hreq,buffer,65536,dwRead);
+      if dwRead<>0 then
+        res.Write(buffer^, dwRead);
+    until dwRead=0;
+  end;
+ InternetCloseHandle(hreq);
+ InternetCloseHandle(hConn);
+ InternetCloseHandle(hInt);
+ FreeMem(buffer);
+end;
+
+procedure _Get(url: string;res: TStream);
+var
+  hInt,hUrl:HINTERNET;
+  buffer:PChar;
+  dwRead:cardinal;
+begin
+ GetMem(buffer, 65536);
+ hInt := InternetOpen('Delphi',INTERNET_OPEN_TYPE_PRECONFIG,nil,nil,0);
+ dwRead:=0;
+ hurl:=InternetOpenUrl(hInt,PChar(url),nil,0,INTERNET_FLAG_RELOAD,0);
+ repeat
+   InternetReadFile(hUrl,buffer,1000,dwRead);
+   if dwRead<>0 then
+     res.Write(buffer^, dwRead);
+ until dwRead=0;
+ InternetCloseHandle(hUrl);
+ InternetCloseHandle(hInt);
+ FreeMem(buffer);
+end;
+
+function GetDataFromURL(url: string): TNode;
+var
+  node: TNode;
+  xml: string;
+begin
+  node := TNode.Create(nil);
+  try
+    xml := Get(url);
+    node := parse(xml);
+  except
+    FreeAndNil(node);
+  end;
+  result := node;
+end;
+
+{ TWebThread }
+
+constructor TWebThread.Create(CreateSuspended: boolean; url, data: string;stream: TStream);
+begin
+  inherited Create(CreateSuspended);
+  FURL := url;
+  FData := data;
+  FRes := stream;
+  self.FreeOnTerminate := False;
+end;
+
+procedure TWebThread.Execute;
+begin
+  if Fdata <> '' then
+    _Post(Furl, Fdata, FRes)
+  else
+    _Get(FURL, FRes);
+  Terminate;
+end;
+
+end.

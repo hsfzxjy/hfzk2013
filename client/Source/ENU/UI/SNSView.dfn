@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE xliff PUBLIC "-//XLIFF//DTD XLIFF//EN" "http://www.oasis-open.org/committees/xliff/documents/xliff.dtd">
+<xliff version="1.0">
+  <file original="E:\Zk Cup\Source\client\Source\UI\SNSView.dfm" source-language="zh-CN" target-language="en-US" datatype="delphiform" tool="ETM v10.0" ts="E:\Zk Cup\Source\client\Source\UI\SNSView.dfm">
+    <header>
+      <prop-group name="ITEHeaderProp">
+        <prop prop-type="Version">9.0</prop>
+        <prop prop-type="SelfDateTime">41492.5665046296</prop>
+        <prop prop-type="OrigDateTime">41491.696712963</prop>
+        <prop prop-type="XlatDateTime">41491.696712963</prop>
+        <prop prop-type="Translated">0</prop>
+        <prop prop-type="UnTranslated">4</prop>
+      </prop-group>
+    </header>
+    <body>
+      <trans-unit id="I:SNSViewer." resname="I:SNSViewer.">
+        <source></source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665187269</prop><prop prop-type="Status">0</prop><prop prop-type="Order">0</prop><prop prop-type="Type">TSNSViewer</prop><prop prop-type="Localize">0</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="I:SNSViewer.I:reText.Options" resname="I:SNSViewer.I:reText.Options">
+        <source>[rvoAllowSelection, rvoScrollToEnd, rvoShowPageBreaks, rvoAutoCopyText, rvoAutoCopyUnicodeText, rvoAutoCopyRVF, rvoAutoCopyImage, rvoAutoCopyRTF, rvoFormatInvalidate, rvoDblClickSelectsWord, rvoRClickDeselects, rvoFastFormatting]</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665187616</prop><prop prop-type="Status">0</prop><prop prop-type="Order">1</prop><prop prop-type="Type">TRichView</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="I:SNSViewer.I:reText.OnJump" resname="I:SNSViewer.I:reText.OnJump">
+        <source>reTextJump</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665187963</prop><prop prop-type="Status">0</prop><prop prop-type="Order">2</prop><prop prop-type="Type">TRichView</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="I:SNSViewer.I:reText.ExplicitLeft" resname="I:SNSViewer.I:reText.ExplicitLeft">
+        <source>0</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.566518831</prop><prop prop-type="Status">0</prop><prop prop-type="Order">3</prop><prop prop-type="Type">TRichView</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="I:SNSViewer.I:reText.ExplicitTop" resname="I:SNSViewer.I:reText.ExplicitTop">
+        <source>0</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665188657</prop><prop prop-type="Status">0</prop><prop prop-type="Order">4</prop><prop prop-type="Type">TRichView</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

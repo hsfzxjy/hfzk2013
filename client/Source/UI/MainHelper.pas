@@ -13,33 +13,75 @@ uses
 function Warn(text: string;button: Integer): Integer;
 function Info(text: string;button: Integer): Integer;
 function GetLoginMsg(_type: TAccount_Type;var Msg: string): Integer;
+procedure ShowLargeImage(Gra: TGraphic);
 
 procedure UpdateRVManagement(re: TRichView);
 function StatusToSNSContext(status: TNode): TSNSContext;
-procedure UpdateTimeline(re: TSNSViewer);
+procedure UpdatePublicTimeline(re: TSNSViewer);
+procedure UpdateTimeline(re: TSNSViewer;ID: string);
+
 implementation
 
-uses FrmLogin;
+uses FrmLogin, FrmLargeImage;
 
 const
   HeaderStrs: array [atSina..atFacebook] of string =
     ('ÐÂÀËÎ¢²©', 'twitter', 'Facebook');
 
-procedure UpdateTimeline(re: TSNSViewer);
+procedure ShowLargeImage(Gra: TGraphic);
+begin
+  With TLargeImageForm.Create(Application) do
+    try
+      Image.Picture.Bitmap.Assign(Gra);
+      ClientWidth := Image.Width;
+      ClientHeight := Image.Height;
+      ShowModal;
+    finally
+      Free;
+    end;
+  Gra.Free;
+end;
+
+procedure UpdateTimeline(re: TSNSViewer;ID: string);
 var
   node, res: TNode;
   sns: TSNSContext;
   i: Integer;
 begin
-  res := Main.CurrentAccount.Timeline['result'];
+  re.ClearAll;
+  res := Main.CurrentAccount.Timeline(ID);
 
-  for i := 1 to res.Count do
+  for i := 1 to res['result'].Count do
   begin
-    node := res[i];
+    node := res['result'][i];
     sns := StatusToSNSContext(node);
+    sns.Account_Type := CurrentAccount.Account_Type;
     re.AddContext(sns);
     sns.Free;
   end;
+
+  res.Free;
+end;
+
+procedure UpdatePublicTimeline(re: TSNSViewer);
+var
+  node, res: TNode;
+  sns: TSNSContext;
+  i: Integer;
+begin
+  re.ClearAll;
+  res := Main.CurrentAccount.PublicTimeline;
+
+  for i := 1 to res['result'].Count do
+  begin
+    node := res['result'][i];
+    sns := StatusToSNSContext(node);
+    sns.Account_Type := CurrentAccount.Account_Type;
+    re.AddContext(sns);
+    sns.Free;
+  end;
+
+  res.Free;
 end;
 
 function StatusToSNSContext(status: TNode): TSNSContext;
@@ -47,11 +89,9 @@ var
   sns: TSNSContext;
 begin
   sns := TSNSContext.Create;
- // sns.Time := status['time'].Value;
-  sns.ImageURL := status['image_url'].Value;
-  sns.ProfileImageURL := status['user']['profile_image_url'].Value;
-  sns.Text := status['text'].Value;
-  sns.Counts.Comment := status['comment_count'].Value;
+  sns.Node.Assign(status as TNodeDict);
+  sns.ConvertText;
+  sns.Buttons := DefaultButtons(CurrentAccount.Account_Type);
   result := sns;
 end;
 
@@ -82,54 +122,9 @@ begin
 end;
 
 procedure UpdateRVManagement(re: TRichView);
-
-  procedure AddTable(_type: TAccount_Type);
-  var
-    table: TRVTableItemInfo;
-    i: Integer;
-  begin
-    table := TRVTableItemInfo.CreateEx(User.AccountsCount(_type)+1, 1, re.RVData);
-    table.BestWidth := -80;
-    table.ParaNo := 1;
-    table.Color := $ADF8F0;
-    table.Cells[0,0].Clear;
-    table.Cells[0,0].AddNL(HeaderStrs[_type],1,1);
-    table.Cells[0,0].AddBreak;
-    //table.Cells[0,0].Color := HEADCOLOR;
-    for i := 0 to User.AccountsCount(_type)-1 do
-    begin
-      table.Cells[i+1,0].Clear;
-      table.Cells[i+1,0].AddHotPicture('pic',
-        GetPictureFromURL(User.Accounts[_type,i].ProfileImageURL),
-        0, rvvaMiddle);
-      table.Cells[i+1,0].AddNL('  '+User.Accounts[_type, i].ScreenName,0,-1);
-      table.Cells[i+1,0].AddHotPicture('delete',
-        GetPictureFromPath(Image_Path+'\delete.png'), -1, rvvaBaseLine);
-    end;
-    table.BorderVSpacing := 5;
-    table.BorderHSpacing := 10;
-    table.CellPadding := 4;
-    table.BorderWidth := 2;
-    table.CellBorderWidth := 0;
-    table.BorderStyle := rvtbColor;
-    table.BorderWidth := 0;
-    table.CellBorderStyle := rvtbColor;
-    re.AddItem(TypeStrings[_type], table);
-  end;
-
-var
-  type_ :TAccount_Type;
 begin
-  if not Assigned(User) then exit;
-  re.Clear;
-  for type_ := atSina to atFacebook do
-  begin
-    AddTable(type_);
-    re.AddNL('', 0, 0);
-  end;
-  re.Reformat;
-end;
 
+end;
 function Warn(text: string;button: Integer): Integer;
 begin
   result := Application.MessageBox(PChar(text), '¾¯¸æ', MB_ICONWARNING or button);

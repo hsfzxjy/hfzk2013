@@ -36,12 +36,36 @@
     <DCC_ObjPath>E:\Zk Cup\Source\client\Three-Part\NativeXML;E:\Zk Cup\Source\client\Source\Kernel;E:\Zk Cup\Source\client\Source\UI;E:\Program Files\Delphi Component\TPerlRegEx;E:\Zk Cup\Source\client\Three-Part\RichView;E:\Zk Cup\Source\client\Three-Part\pngimage;E:\Zk Cup\Source\client\Source\UI\Dialogs</DCC_ObjPath>
     <DCC_IncludePath>E:\Zk Cup\Source\client\Three-Part\NativeXML;E:\Zk Cup\Source\client\Source\Kernel;E:\Zk Cup\Source\client\Source\UI;E:\Program Files\Delphi Component\TPerlRegEx;E:\Zk Cup\Source\client\Three-Part\RichView;E:\Zk Cup\Source\client\Three-Part\pngimage;E:\Zk Cup\Source\client\Source\UI\Dialogs</DCC_IncludePath>
     <DCC_Warnings>False</DCC_Warnings>
+    <DCC_OutputDRCFile>True</DCC_OutputDRCFile>
   </PropertyGroup>
   <ProjectExtensions>
     <Borland.Personality>Delphi.Personality</Borland.Personality>
     <Borland.ProjectType />
     <BorlandProject>
-<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><VersionInfo><VersionInfo Name="IncludeVerInfo">False</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">2052</VersionInfo><VersionInfo Name="CodePage">936</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys><VersionInfoKeys Name="LastCompiledTime">2013/7/15 16:05:10</VersionInfoKeys></VersionInfoKeys><Source><Source Name="MainSource">client.dpr</Source></Source></Delphi.Personality><ModelSupport>False</ModelSupport></BorlandProject></BorlandProject>
+<BorlandProject><Delphi.Personality><Parameters><Parameters Name="UseLauncher">False</Parameters><Parameters Name="LoadAllSymbols">True</Parameters><Parameters Name="LoadUnspecifiedSymbols">False</Parameters></Parameters><VersionInfo><VersionInfo Name="IncludeVerInfo">False</VersionInfo><VersionInfo Name="AutoIncBuild">False</VersionInfo><VersionInfo Name="MajorVer">1</VersionInfo><VersionInfo Name="MinorVer">0</VersionInfo><VersionInfo Name="Release">0</VersionInfo><VersionInfo Name="Build">0</VersionInfo><VersionInfo Name="Debug">False</VersionInfo><VersionInfo Name="PreRelease">False</VersionInfo><VersionInfo Name="Special">False</VersionInfo><VersionInfo Name="Private">False</VersionInfo><VersionInfo Name="DLL">False</VersionInfo><VersionInfo Name="Locale">2052</VersionInfo><VersionInfo Name="CodePage">936</VersionInfo></VersionInfo><VersionInfoKeys><VersionInfoKeys Name="CompanyName"></VersionInfoKeys><VersionInfoKeys Name="FileDescription"></VersionInfoKeys><VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="InternalName"></VersionInfoKeys><VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys><VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys><VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys><VersionInfoKeys Name="ProductName"></VersionInfoKeys><VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys><VersionInfoKeys Name="Comments"></VersionInfoKeys><VersionInfoKeys Name="LastCompiledTime">2013/7/15 16:05:10</VersionInfoKeys></VersionInfoKeys><Source><Source Name="MainSource">client.dpr</Source></Source><Language><Language Name="ProjectLang">$00000804</Language></Language>  
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <Resource_DLL_Projects>
+      <Resource_DLL_Projects Name="Item0">英语(美国)*$00000409*ENU*ENU</Resource_DLL_Projects>
+      <Resource_DLL_Projects Name="Item1">中文(简体，新加坡)*$00001004*ZHI*ZHI</Resource_DLL_Projects>
+    </Resource_DLL_Projects>
+  </Delphi.Personality><ModelSupport>False</ModelSupport></BorlandProject></BorlandProject>
   </ProjectExtensions>
   <Import Project="$(MSBuildBinPath)\Borland.Delphi.Targets" />
   <ItemGroup>
@@ -54,9 +78,23 @@
     <DCCReference Include="Kernel\User_Intf.pas" />
     <DCCReference Include="Kernel\web_connect.pas" />
     <DCCReference Include="Kernel\XMLObj.pas" />
+    <DCCReference Include="Test.pas">
+      <Form>Form1</Form>
+    </DCCReference>
+    <DCCReference Include="UI\AccountsView.pas">
+      <Form>AccountsViewer</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
     <DCCReference Include="UI\CustomView.pas">
       <Form>CustomViewer</Form>
       <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="UI\CustomViewFrame.pas">
+      <Form>CustomViewerFrame</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="UI\Dialogs\FrmLargeImage.pas">
+      <Form>LargeImageForm</Form>
     </DCCReference>
     <DCCReference Include="UI\Dialogs\FrmLogin.pas">
       <Form>LoginForm</Form>
@@ -67,8 +105,18 @@
     <DCCReference Include="UI\Main.pas">
       <Form>MainForm</Form>
     </DCCReference>
+    <DCCReference Include="UI\MainHelper.pas" />
     <DCCReference Include="UI\SNSView.pas">
       <Form>SNSViewer</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="UI\UserView.pas">
+      <Form>UserViewer</Form>
+      <DesignClass>TFrame</DesignClass>
+    </DCCReference>
+    <DCCReference Include="UI\ViewerFactory.pas" />
+    <DCCReference Include="UI\WBViewer.pas">
+      <Form>CustomViewerFrame1</Form>
       <DesignClass>TFrame</DesignClass>
     </DCCReference>
   </ItemGroup>

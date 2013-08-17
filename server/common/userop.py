@@ -46,7 +46,6 @@ def get_data_from_user(user):
     result = {"ID" : user.ID}
     result["accounts"] = []
     for u in user.accounts:
-        u.update()
         result["accounts"].append(
               {"account_type":u.account_type, 
               "account_name":u.account_name,
@@ -131,8 +130,5 @@ def get_account(data):
     elif isinstance(data, modeldef.SNSAccount):
         acc = data
     else:
-        return None
-    if acc:
-        acc.update()
-    logging.info(str(acc))    
+        return None   
     return acc

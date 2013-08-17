@@ -1,0 +1,22 @@
+unit CustomViewFrame;
+
+interface
+
+uses
+  Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms, 
+  Dialogs, XMLObj;
+
+type
+  TCustomViewerFrame = class(TFrame)
+  private
+    { Private declarations }
+  public
+    constructor Create(AOwner: TComponent;Node: TNode);overload;virtual;
+    { Public declarations }
+  end;
+
+implementation
+
+{$R *.dfm}
+
+end.

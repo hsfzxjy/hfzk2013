@@ -2,9 +2,38 @@ import base64
 import json
 import urllib
 import webapp2
+import time
+import code
 from google.appengine.ext import db
-from google.appengine.api import urlfetch
-from google.appengine.runtime import DeadlineExceededError
+from google.appengine.api import urlfetch, urlfetch_errors
+from google.appengine import runtime
+from google.appengine.runtime import apiproxy_errors
+from google.appengine.api import memcache as cache
+
+DeadlineErrors = (runtime.DeadlineExceededError, apiproxy_errors.DeadlineExceededError,
+                  urlfetch_errors.DeadlineExceededError)
+
+#Error Structures
+Error_Server_Busy = {'_error': 'Server busy!', '_error_code': 0}
+Error_Bad_Request = {'_error': 'Bad request!', '_error_code': 1}
+Error_Expired = {'_error': 'The token has expired!', '_error_code':2}
+
+def make_key(category, data):
+    return '%s_%s' % (category, '_'.join(['='.join(i) for i in data.iteritems()]))
+
+def set_cache_data(key, value):
+    try:
+        data = code.object_to_json(value)
+        cache.set(key = key, value = data, time = 3600)
+    except:
+        return False
+    return True
+
+def get_cache_data(key):
+    data = cache.get(key)
+    if data:
+        data = code.json_to_object(data)
+    return data
 
 def safe_call(url, payload = None, method = urlfetch.GET):
     
@@ -12,8 +41,10 @@ def safe_call(url, payload = None, method = urlfetch.GET):
         try:
             res = urlfetch.fetch(_url, payload = _payload, method = _method, \
                                  deadline = 10)
-        except DeadlineExceededError:
+        except DeadlineErrors:
             res = None
+            time.sleep(0.5)
+        
         return res
     
     res = None

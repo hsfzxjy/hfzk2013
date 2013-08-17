@@ -1,0 +1,39 @@
+inherited SNSViewer: TSNSViewer
+  inherited reText: TRichView
+    Options = [rvoAllowSelection, rvoScrollToEnd, rvoShowPageBreaks, rvoAutoCopyText, rvoAutoCopyUnicodeText, rvoAutoCopyRVF, rvoAutoCopyImage, rvoAutoCopyRTF, rvoFormatInvalidate, rvoDblClickSelectsWord, rvoRClickDeselects, rvoFastFormatting]
+    OnJump = reTextJump
+    ExplicitLeft = 0
+    ExplicitTop = 0
+  end
+  inherited RVStyle: TRVStyle
+    ParaStyles = <
+      item
+        StyleName = 'Main'
+        LeftIndent = 20
+        RightIndent = 20
+        Tabs = <>
+      end
+      item
+        StyleName = 'Retweet'
+        LeftIndent = 40
+        RightIndent = 40
+        Tabs = <>
+      end
+      item
+        StyleName = 'Button Retweet'
+        LeftIndent = 40
+        RightIndent = 40
+        Alignment = rvaRight
+        Tabs = <>
+        DefStyleNo = 3
+      end
+      item
+        StyleName = 'Button Main'
+        LeftIndent = 20
+        RightIndent = 20
+        Alignment = rvaRight
+        Tabs = <>
+        DefStyleNo = 3
+      end>
+  end
+end

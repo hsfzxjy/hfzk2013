@@ -17,16 +17,3 @@ class SNSAccount(db.Model):
     account_name = db.StringProperty()
     access_token = db.StringProperty()
     expire_in = db.IntegerProperty()
-    
-    def __sns(self):
-        if self.account_type == 'sina':
-            return open.sina.Sina(self.access_token)
-        if self.account_type == 'facebook':
-            return open.facebook.Facebook(self.access_token)
-        if self.account_type == 'twitter':
-            return open.twitter.Twitter(self.access_token, self.access_secret)
-        
-    def update(self):
-        sns = self.__sns()
-        self.expire_in = sns.expire_in()
-        self.put()

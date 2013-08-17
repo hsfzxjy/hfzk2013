@@ -47,7 +47,7 @@ class CallBackHandler(webapp2.RequestHandler):
             req["account_name"] = s.api.account__get_uid()["uid"]
             req["access_token"] = access_token
             req["expire_in"] = s.get_info()["expire_in"]
-        except DeadlineExceededError:
+        except:
             pass
         util.redirect_to_login(self, req)
         

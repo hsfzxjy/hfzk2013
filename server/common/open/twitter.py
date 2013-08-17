@@ -2,8 +2,8 @@
 
 __version__ = '1.0'
 
-CONSUMER_KEY = '9lY1CjPgEiQTMNXdYnEiw'
-CONSUMER_SECRET = 'hIvCLhG6u37RUfjYI7wa6bHDbjjgGZx6h5S37LTwE'
+CONSUMER_KEY = '3nVuSoBZnx6U4vzUxf5w'#'9lY1CjPgEiQTMNXdYnEiw'
+CONSUMER_SECRET = 'Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys'#'hIvCLhG6u37RUfjYI7wa6bHDbjjgGZx6h5S37LTwE'
 REQUEST_TOKEN_URL = 'https://api.twitter.com/oauth/request_token'
 ACCESS_TOKEN_URL = 'https://api.twitter.com/oauth/access_token'
 AUTHORIZE_URL = 'https://api.twitter.com/oauth/authorize'
@@ -32,6 +32,8 @@ from google.appengine.api import urlfetch
 import StringIO
 import __global as glb
 from copy import deepcopy
+from datetime import datetime
+from common.utils import util
 
 qt = lambda (s):quote(s,'~')
 
@@ -39,6 +41,14 @@ CHARACTER_LIMIT = 140
 
 # A singleton representing a lazily instantiated FileCache.
 DEFAULT_CACHE = object()
+
+def solve_time(s):
+    index = s.index('+')
+    zone = s[index:index+5]
+    s = s.replace(zone,'')
+    fmt = '%a %b %d %H:%M:%S  %Y'
+    fmt2 = '%Y-%m-%d %H:%M:%S'
+    return datetime.strptime(s, fmt).strftime(fmt2) + zone
 
 def get_oauth_url():
     signature_method_hmac_sha1 = oauth.SignatureMethod_HMAC_SHA1()
@@ -151,32 +161,53 @@ class Twitter(object):
         res = res["screen_name"]
         return res
     
+    def has_expired(self):
+        res = self.api.user__show(screen_name = self.get_screen_name())
+        if 'errors' in res:
+            for i in res['errors']:
+                if i['code']==89:
+                    return True
+        return False
+    
     def expire_in(self):
         return 0
     
+    def parse_user(self, user):
+        res = deepcopy(glb.User)
+        logging.info(user)
+        res['id'] = user['screen_name']
+        res['screen_name'] = user['name']
+        res['user_name'] = user['screen_name']
+        res['website'] = user['url'] if user['url'] else ''
+        res['follower_count'] = user['followers_count']
+        res['follow_count'] = user['friends_count']
+        res['verified'] = user['verified']
+        res['profile_image']['small_url'] = user['profile_image_url']
+        res['profile_image']['large_url'] = user['profile_image_url']
+        res['description'] = user['description']
+        res['location'] = user['location']
+        return res
+    
     def user(self, **kw):
-        ID = kw['ID'] if kw.has_key('ID') else ''
-        screen_name = kw['screen_name'] if kw.has_key('screen_name') else ''
-        if ID:
-            res = self.api.users__show(user_id = ID)
-        else:
-            res = self.api.users__show(screen_name = screen_name)
-        logging.info(str(res))
-        response = deepcopy(glb.User)
-        response['id'] = res['id_str'] 
-        response['screen_name'] = res['name']
-        response['user_name'] = res['screen_name'] 
-        response['website'] = res['url'] if res['url'] else ''
-        response['follower_count'] = res['followers_count']
-        response['follow_count'] = res['friends_count']
-        response['profile_image_url'] = res['profile_image_url']
+        key = util.make_key('user_twitter', kw)
+        data = util.get_cache_data(key)
+        if data:
+            print 'YES'
+            return data
         
+        ID = kw['ID'] if kw.has_key('ID') else ''
+        res = self.api.users__show(screen_name = ID)
+        logging.info(str(res))
+        
+        response = self.parse_user(res)
+        util.set_cache_data(key, response)
         return response
     
     def parse_status(self, status):
         #[begin, end, type, extra]
         entities = status['entities']
         text = status['text']
+        res = deepcopy(glb.StatusText)
         result = []
         tmp = []
         
@@ -191,7 +222,7 @@ class Twitter(object):
                 tmp += [[url['indices'][0], url['indices'][1], 'url', url['expanded_url']]]        
         if entities.has_key('user_mentions'):
             for user in entities['user_mentions']:
-                tmp += [[user['indices'][0],user['indices'][1], 'at', user['name']]]
+                tmp += [[user['indices'][0],user['indices'][1], 'mention', user['screen_name']]]
         tmp.sort()
         
         prev = 0
@@ -204,54 +235,71 @@ class Twitter(object):
             prev = data[1] + 1
         if prev<len(text):
             result += [{'text': text[prev:len(text)], 'texttype': 'normal', 'extra':''}]
-        return result
-            
+        res['text'] = text
+        res['blocks'] = result
+        
+        return res
     
-    def timeline(self, **kw):
-        limit = int(kw['limit']) if kw.has_key('limit') else 100
-        res = self.api.statuses__home_timeline(count = limit)
-        res = res['result']
+    def parse_statuses(self, statuses):
         response = []
-        for status in res:
+        for status in statuses:
             s = deepcopy(glb.Status)
             s['id'] = status['id_str']
             s['text'] = self.parse_status(status)
-            s['time'] = status['created_at']
-            s['user'] = status['user']['screen_name']
+            s['time'] = solve_time(status['created_at'])
+            s['user'] = self.parse_user(status['user'])
             entities = status['entities']
             if entities.has_key('media'):
                 for i in entities['media']:
-                    s['image_url'] = ''
-                    s['image_url'] = i['media_url_https'] if i['type'] == 'photo' else s['image_url']
+                    if i['type'] == 'photo':
+                        s['image']['small_url'] = i['media_url_https']                        
+                        s['image']['large_url'] = i['media_url_https']
             s['retweet_count'] = status['retweet_count']
             s['favor_count'] = status['favorite_count']
-            response.append(s)
+            response.append(s)  
+        return response
+    
+    def public_timeline(self, **kw):
+        limit = int(kw['limit']) if 'limit' in kw else 100
+        res = self.api.statuses__home_timeline(count = limit)
+        res = res['result']
+        response = {}
+        response['result'] = self.parse_statuses(res)
         
+        return response
+    
+    def timeline(self, **kw):
+        ID = kw['ID'] if 'ID' in kw else ''
+        limit = int(kw['limit']) if kw.has_key('limit') else 100
+        
+        res = self.api.statuses__user_timeline(screen_name = ID, count = limit)
+        res = res['result']
+        response = self.parse_statuses(res)
+        
+        logging.info(str(response))
         return {'result':response}
     
     def friends(self, **kw):
         ID = kw['ID'] if kw.has_key('ID') else ''
-        screen_name = kw['screen_name'] if kw.has_key('screen_name') else ''
-        if ID:
-            res = self.api.friends__ids(user_id = ID)
-        else:
-            res = self.api.friends__ids(screen_name = screen_name)
+        cursor = kw['cursor'] if 'cursor' in kw else -1
+        res = self.api.friends__list(screen_name = ID,cursor=cursor)
         logging.info(res)
-        res = res['ids']
+        res = res['users']
         
-        response = deepcopy(glb.Friends)
+        response = []
         for i in res:
-            response['follows'].append(self.user(ID = i))
+            response.append(self.parse_user(i))
+            logging.info(i)
             
-        if ID:
-            res = self.api.followers__ids(user_id = ID)
-        else:
-            res = self.api.followers__ids(screen_name = screen_name)
-        res = res['ids']
+        return {'result':response}
+            
+    def followers(self, **kw):
+        ID = kw['ID'] if kw.has_key('ID') else ''
+        cursor = kw['cursor'] if 'cursor' in kw else -1
+        res = self.api.followers__list(screen_name = ID,cursor=cursor)
+        res = res['users']
         
+        response = []
         for i in res:
-            response['followers'].append(self.user(ID = i))
-            
-        response['friends'] = [i for i in response['followers'] for j in response['follows'] if i['id']==j['id']]
-            
-        return response
+            response.append(self.parse_user(i))
+        return {'result':response}

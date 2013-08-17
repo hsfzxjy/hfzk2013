@@ -1,0 +1,116 @@
+unit MainHelper;
+
+interface
+
+uses
+  {System}
+  Forms, Windows, Graphics, Sysutils, Controls,
+  {Custom}
+  User_Intf, Data_Intf, XMLObj, Global, web_connect, Main, SNSView,
+  {Third-Part}
+  RichView, RVTable, RVStyle, RVData, RVItem, RVTypes, NativeXML;
+
+function Warn(text: string;button: Integer): Integer;
+function Info(text: string;button: Integer): Integer;
+function GetLoginMsg(_type: TAccount_Type;var Msg: string): Integer;
+procedure ShowLargeImage(Gra: TGraphic);
+
+procedure UpdateRVManagement(re: TRichView);
+function StatusToSNSContext(status: TNode): TSNSContext;
+procedure UpdatePublicTimeline(re: TSNSViewer);
+
+implementation
+
+uses FrmLogin, FrmLargeImage;
+
+const
+  HeaderStrs: array [atSina..atFacebook] of string =
+    ('新浪微博', 'twitter', 'Facebook');
+
+procedure ShowLargeImage(Gra: TGraphic);
+begin
+  With TLargeImageForm.Create(Application) do
+    try
+      Image.Picture.Bitmap.Assign(Gra);
+      ClientWidth := Image.Width;
+      ClientHeight := Image.Height;
+      ShowModal;
+    finally
+      Free;
+    end;
+  Gra.Free;
+end;
+
+procedure UpdatePublicTimeline(re: TSNSViewer);
+var
+  node, res: TNode;
+  sns: TSNSContext;
+  i: Integer;
+begin
+  re.ClearAll;
+  res := Main.CurrentAccount.PublicTimeline;
+
+  for i := 1 to res['result'].Count do
+  begin
+    node := res['result'][i];
+    sns := StatusToSNSContext(node);
+    sns.Account_Type := CurrentAccount.Account_Type;
+    re.AddContext(sns);
+    sns.Free;
+  end;
+
+  res.Free;
+end;
+
+function StatusToSNSContext(status: TNode): TSNSContext;
+var
+  sns: TSNSContext;
+begin
+  sns := TSNSContext.Create;
+  sns.Node.Assign(status as TNodeDict);
+  sns.ConvertText;
+  sns.Buttons := DefaultButtons(CurrentAccount.Account_Type);
+  result := sns;
+end;
+
+function GetLoginMsg(_type: TAccount_Type;var Msg: string): Integer;
+var
+  s: string;
+  frm: TLoginForm;
+begin
+  case _type of
+    atSina:     s := Intf_Sina_URL;
+    atTwitter:  s := Intf_Twitter_URL;
+    atFacebook: s := Intf_Facebook_URL;
+  end;
+  s := s + '/oauth';
+
+  frm := TLoginForm.Create(Application, s);
+  try
+    if frm.ShowModal = mrOK then
+    begin
+      result := mrOK;
+      Msg := frm.Msg;
+    end
+    else
+      result := mrCancel;
+  finally
+    frm.Free;
+  end;
+end;
+
+procedure UpdateRVManagement(re: TRichView);
+begin
+
+end;
+function Warn(text: string;button: Integer): Integer;
+begin
+  result := Application.MessageBox(PChar(text), '警告', MB_ICONWARNING or button);
+end;
+
+function Info(text: string;button: Integer): Integer;
+begin
+  result := Application.MessageBox(PChar(text), '提示', MB_ICONQUESTION or button);
+end;
+
+end.

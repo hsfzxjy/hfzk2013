@@ -3,7 +3,7 @@ unit Cache_;
 interface
 
 uses
-  Classes, Sysutils, Windows, Graphics, Global;
+  Classes, Sysutils, Windows, Graphics, Global, XMLOBj, NativeXML, DateUtils;
 
 type
   TCache = class(TPersistent)
@@ -30,6 +30,8 @@ type
 
     function SetPicture(fn: string;pic: TGraphic): boolean;
     function GetPicture(fn: string): TGraphic;
+    function SetTimeline(name: string;text: TNode): boolean;
+    function GetTimeline(name: string): TNode;
   end;
 
 var
@@ -45,6 +47,48 @@ end;
 procedure Uninit;
 begin
   Cache.Free;
+end;
+
+
+function GetFileDateTime(const FileName: string): TDateTime;
+var
+  Handle: THandle;
+  FindData: TWin32FindData;
+  LocalFileTime: TFileTime;
+  DosDateTime: Integer;
+begin
+  Handle := FindFirstFile(PChar(FileName), FindData);
+  if Handle <> INVALID_HANDLE_VALUE then
+  begin
+    Windows.FindClose(Handle);
+    if (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0 then begin
+      FileTimeToLocalFileTime(FindData.ftCreationTime, LocalFileTime);
+      if FileTimeToDosDateTime(LocalFileTime, LongRec(DosDateTime).Hi,
+        LongRec(DosDateTime).Lo) then
+      begin
+        Result := FileDateToDateTime(DosDateTime);
+        Exit;
+      end;
+    end;
+  end;
+  Result := -1;
+end;
+
+function IsExpired(const fn:string;min: Integer;Delete: boolean=true): boolean;
+var
+  date: TDateTime;
+begin
+  result := True;
+  if not FileExists(fn) then
+    exit;
+  date := GetFileDateTime(fn);
+  if MinutesBetween(Now, date) >= min then
+  begin
+    if Delete then
+      DeleteFile(PChar(fn));
+    exit;
+  end;
+  result := False;
 end;
 
 { TCache }
@@ -72,6 +116,26 @@ begin
     result := nil;
   end;
   fs.Free;
+end;
+
+function TCache.GetTimeline(name: string): TNode;
+var
+  fname: string;
+  xml: TNativeXML;
+begin
+  result := nil;
+  CheckPath;
+
+  fname := Format('%s\%s.tl', [FSNSContextPath, name]);
+  if IsExpired(fname, 5) then exit;
+  xml := TNativeXML.Create(nil);
+  try
+    xml.LoadFromFile(fname);
+    result := parse(xml);
+  except
+
+  end;
+  xml.Free;
 end;
 
 procedure TCache.InitPath;
@@ -111,6 +175,26 @@ begin
   CheckPath;
   pic.SaveToFile(Format('%s\%s', [FPicturePath, fn]));
   result := True;
+end;
+
+function TCache.SetTimeline(name: string; text: TNode): boolean;
+var
+  fname: string;
+  xml: TNativeXML;
+begin
+  result := True;
+  CheckPath;
+
+  fname := Format('%s\%s.tl', [FSNSContextPath, name]);
+  if not IsExpired(name, 5) then exit;
+  xml := TNativeXML.Create(nil);
+  try
+    xml.ReadFromString(text.XML);
+    xml.SaveToFile(fname);
+  except
+    result := False;
+  end;
+  xml.Free;
 end;
 
 initialization

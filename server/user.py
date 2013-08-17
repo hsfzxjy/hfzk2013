@@ -38,31 +38,10 @@ class User_LoginHandler(webapp2.RequestHandler):
         if arg["account_name"]:
             res = arg
         else:
-            res["_error"] = 'Server busy!'
+            res = util.Error_Server_Busy
         self.response.write(code.object_to_xml(res).toxml())
 
-class User_QueryAccountHandler(webapp2.RequestHandler):
-    
-    def get(self):
-        """Params
-           account_type, account_name"""
-        self.response.headers['Content-Type'] = 'text/plain'
-        account_type = self.request.get('account_type')
-        account_name = self.request.get('account_name')
-        
-        req = {'account_type': account_type, 
-               'account_name': account_name}
-        account = userop.get_account(req)
-        
-        res = {'ID':''}
-        if account:
-            res['ID'] = str(userop.get_user(account).ID)
-        else:
-            res['ID'] = 'None'
-            
-        self.response.write(code.object_to_xml(res).toxml())
-
-class User_QueryUserHandler(webapp2.RequestHandler):
+class User_QueryHandler(webapp2.RequestHandler):
 
     def get(self):
         '''
@@ -99,7 +78,7 @@ class User_OperateHandler(webapp2.RequestHandler):
         #except:
             #res = None
         if not res:
-            res = {'_error':'Somethind has been wrong!'}
+            res = util.Error_Bad_Request
         self.response.write(code.object_to_xml(res).toxml())
         
     def _do_create(self, data):
@@ -156,8 +135,7 @@ class User_OperateHandler(webapp2.RequestHandler):
     
 app = webapp2.WSGIApplication([
     ('/user/login', User_LoginHandler), 
-    ('/user/queryuser', User_QueryUserHandler),
-    ('/user/queryaccount', User_QueryAccountHandler),
+    ('/user/query', User_QueryHandler),
     ('/user/operate', User_OperateHandler),
     ('/user/', MainHandler),
     ('/user/modifyaccount', User_ModifyAccountHandler)

@@ -1,0 +1,205 @@
+unit Cache_;
+
+interface
+
+uses
+  Classes, Sysutils, Windows, Graphics, Global, XMLOBj, NativeXML, DateUtils;
+
+type
+  TCache = class(TPersistent)
+  private
+    FID: string;
+    FPicturePath: string;
+    FSNSContextPath: string;
+    FAccount_Type: TAccount_Type;
+    FAccount_Name: string;
+
+    procedure CheckPath;
+    procedure InitPath;
+    procedure SetID(const Value: string);
+    procedure SetAccount_Name(const Value: string);
+    procedure SetAccount_Type(const Value: TAccount_Type);
+  published
+
+  public
+    property ID: string read FID write SetID;
+    property Account_Type: TAccount_Type read FAccount_Type write SetAccount_Type;
+    property Account_Name: string read FAccount_Name write SetAccount_Name;
+    property PicturePath: string read FPicturePath;
+    property SNSContextPath: string read FSNSContextPath;
+
+    function SetPicture(fn: string;pic: TGraphic): boolean;
+    function GetPicture(fn: string): TGraphic;
+    function SetTimeline(name: string;text: TNode): boolean;
+    function GetTimeline(name: string): TNode;
+  end;
+
+var
+  Cache: TCache;
+
+implementation
+
+procedure Init;
+begin
+  Cache := TCache.Create;
+end;
+
+procedure Uninit;
+begin
+  Cache.Free;
+end;
+
+
+function GetFileDateTime(const FileName: string): TDateTime;
+var
+  Handle: THandle;
+  FindData: TWin32FindData;
+  LocalFileTime: TFileTime;
+  DosDateTime: Integer;
+begin
+  Handle := FindFirstFile(PChar(FileName), FindData);
+  if Handle <> INVALID_HANDLE_VALUE then
+  begin
+    Windows.FindClose(Handle);
+    if (FindData.dwFileAttributes and FILE_ATTRIBUTE_DIRECTORY) = 0 then begin
+      FileTimeToLocalFileTime(FindData.ftCreationTime, LocalFileTime);
+      if FileTimeToDosDateTime(LocalFileTime, LongRec(DosDateTime).Hi,
+        LongRec(DosDateTime).Lo) then
+      begin
+        Result := FileDateToDateTime(DosDateTime);
+        Exit;
+      end;
+    end;
+  end;
+  Result := -1;
+end;
+
+function IsExpired(const fn:string;min: Integer;Delete: boolean=true): boolean;
+var
+  date: TDateTime;
+begin
+  result := True;
+  if not FileExists(fn) then
+    exit;
+  date := GetFileDateTime(fn);
+  if MinutesBetween(Now, date) >= min then
+  begin
+    if Delete then
+      DeleteFile(PChar(fn));
+    exit;
+  end;
+  result := False;
+end;
+
+{ TCache }
+
+procedure TCache.CheckPath;
+begin
+  if (FPicturePath = '') or (FSNSContextPath = '') then
+    Abort;
+end;
+
+function TCache.GetPicture(fn: string): TGraphic;
+var
+  fs: TMemoryStream;
+  fname: string;
+begin
+  result := nil;
+  CheckPath;
+
+  fname := Format('%s\%s', [FPicturePath, fn]);
+  fs := TMemoryStream.Create();
+  try
+    fs.LoadFromFile(fname);
+    result := LoadPicture(fs);
+  except
+    result := nil;
+  end;
+  fs.Free;
+end;
+
+function TCache.GetTimeline(name: string): TNode;
+var
+  fname: string;
+  xml: TNativeXML;
+begin
+  result := nil;
+  CheckPath;
+
+  fname := Format('%s\%s.tl', [FSNSContextPath, name]);
+  xml := TNativeXML.Create(nil);
+  try
+    xml.LoadFromFile(fname);
+    result := parse(xml);
+  except
+
+  end;
+  xml.Free;
+end;
+
+procedure TCache.InitPath;
+begin
+  if (FAccount_Name = '') or (FID = '') then exit;
+  FPicturePath := Format('%s\%s\%s\%s\Pictures', [Cache_Path,
+    FID, TypeStrings[FAccount_Type], Account_Name]);
+  FSNSContextPath := Format('%s\%s\%s\%s\Contexts', [Cache_Path,
+    FID, TypeStrings[FAccount_Type], Account_Name]);
+  if not DirectoryExists(FPicturePath) then
+    ForceDirectories(FPicturePath);
+  if not DirectoryExists(FSNSContextPath) then
+    ForceDirectories(FSNSContextPath);
+end;
+
+procedure TCache.SetAccount_Name(const Value: string);
+begin
+  FAccount_Name := Value;
+  InitPath;
+end;
+
+procedure TCache.SetAccount_Type(const Value: TAccount_Type);
+begin
+  FAccount_Type := Value;
+  InitPath;
+end;
+
+procedure TCache.SetID(const Value: string);
+begin
+  FID := Value;
+  InitPath;
+end;
+
+function TCache.SetPicture(fn: string; pic: TGraphic): boolean;
+begin
+  result := False;
+  CheckPath;
+  pic.SaveToFile(Format('%s\%s', [FPicturePath, fn]));
+  result := True;
+end;
+
+function TCache.SetTimeline(name: string; text: TNode): boolean;
+var
+  fname: string;
+  xml: TNativeXML;
+begin
+  result := True;
+  CheckPath;
+
+  fname := Format('%s\%s.tl', [FSNSContextPath, name]);
+  if IsExpired(name, 5) then exit;
+  xml := TNativeXML.Create(nil);
+  try
+    xml.ReadFromString(text.XML);
+    xml.SaveToFile(fname);
+  except
+    result := False;
+  end;
+  xml.Free;
+end;
+
+initialization
+  Init;
+
+finalization
+  Uninit;
+
+end.

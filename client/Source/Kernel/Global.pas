@@ -4,10 +4,14 @@ interface
 
 uses
   Classes, IniFiles, Sysutils, MSHtml, OleCtrls, SHDocVw, NativeXML, IdURI,
-  Forms, Graphics, frmWaiting;
+  Forms, Graphics, frmWaiting, EmbeddedWB;
 
 type
   TAccount_Type = (atSina, atTwitter, atFacebook);
+
+  TImageURLs = record
+    Large, Small: string;
+  end;
 
   TCustomContext = class(TPersistent)
   public
@@ -17,9 +21,27 @@ type
 
   TCustomContextClass = class of TCustomContext;
 
+  EConnectError = class(Exception)
+  private
+    FURL: string;
+  published
+  public
+    property URL: string read FURL;
+
+    constructor Create(AURL: string);
+  end;
+
+  EAccountExpiredError = class(Exception)
+  public
+
+  end;
+
 const
   Ini_Name :string = '.\Main.INI';
   TypeStrings : array [atSina..atFacebook] of String = ('sina','twitter','facebook');
+  Err_Connect: string = '网络连接失败，无法连接到网址：'#13#10'%s'#13#10'请检查网络连接！';
+  Err_Expired: string = '当前账户的授权已过期！请切换用户或者重新登录！';
+  Broken_Img_Path: string = '..\res\images\broken_img.jpg';
 
 var
   Host_URL: string;
@@ -45,8 +67,8 @@ var
   ExePath: string;
 
 //WebBrowser functions
-function GetHTMLFromWebBrowser(wb: TWebBrowser): string;
-function GetTextFromWebBrowser(wb: TWebBrowser): string;
+function GetHTMLFromWebBrowser(wb: TEmbeddedWB): string;
+function GetTextFromWebBrowser(wb: TEmbeddedWB): string;
 
 //String Encode-Decode functions
 function Utf8ToWide(s: UTF8String): WideString;
@@ -60,32 +82,92 @@ function GetFullURLPath(url: string): string;
 //Images functions
 function LoadPicture(ms: TStream): TGraphic;
 function GetPictureFromPath(path: string): TGraphic;
+function GraphicToBmp(Graphic: TGraphic;Free: boolean = True): TBitmap;
 
 //Hash functions
 function Hash(s: string): string;
 function Unhash(s: string): string;
 
+//Memory functions
+procedure DeepDestroy(obj: TStringList);
+
+//INI File functions
+function GetINIUser(): string;
+procedure SetINIUser(ID: string);
+
 implementation
 
-uses PerlRegEx, pngimage, gifimg, jpeg;
+uses PerlRegEx, pngimage, gifimg, jpeg, EncdDecd;
 
-function Hash(s: string): string;
+var IniFile: TIniFile;
+
+function GraphicToBmp(Graphic: TGraphic;Free: boolean = true): TBitmap;
+begin
+  result := TBitmap.Create;
+  result.Assign(Graphic);
+  if Free then
+    Graphic.Free;
+end;
+
+procedure SetINIUser(ID: string);
+begin
+  INIFile.WriteString('Data', 'User', ID);
+end;
+
+function GetINIUser(): string;
+begin
+  result := INIFile.ReadString('Data','User','');
+end;
+
+procedure DeepDestroy(obj: TStringList);
 var
-  ch: char;
+  i: Integer;
+begin
+  for i:=0 to obj.Count -1 do
+  if Assigned(obj.Objects[i]) then
+  begin
+    obj.Objects[i].Free;
+    obj := nil;
+  end;
+//  obj.Clear;
+  FreeAndNil(obj);
+end;
+
+function Hash(s:string):string;
+const
+  InvalidChars = ['\','/',':','*','?','"','<','>','|','%'];
+var
+  ch: Char;
 begin
   result := '';
   for ch in s do
-    result := result+IntToHex(Ord(ch), 2);
+    if ch in InvalidChars then
+      result := result + '%' + IntToHex(Ord(ch), 2)
+    else
+      result := result + ch;
 end;
 
-function Unhash(s: string): string;
+function UnHash(s: string):string;
 var
-  str: char;
-  i: integer;
+  ch: Char;
+  i: Integer;
 begin
   result := '';
-  for i := 1 to length(s) div 2 do
-    result := result + Chr(StrToInt('$'+Copy(s,i*2-1,2)));
+  i := 1;
+  while i <=Length(s) do
+  begin
+    ch := s[i];
+    if ch = '%' then
+    begin
+      result := result + chr(StrToInt('$'+Copy(s,i+1,2)));
+      Inc(i, 3);
+    end
+    else
+    begin
+      result := result + s[i];
+      Inc(i);
+    end;
+  end;
 end;
 
 function GetPictureFromPath(path: string): TGraphic;
@@ -113,7 +195,7 @@ begin
   case Buffer of
     $4D42: result := TBitmap.Create;
     $D8FF: result := TJPEGImage.Create;
-    $4947: result := TGifImage.Create;
+    $4947: result := TGifImage.Create; 
     $5089: result := TPNGObject.Create;
   end;
   ms.Position := 0;
@@ -122,7 +204,7 @@ begin
     result.LoadFromStream(ms);
 end;
 
-function GetTextFromWebBrowser(wb: TWebBrowser): string;
+function GetTextFromWebBrowser(wb: TEmbeddedWB): string;
 begin
   result := (wb.Document as IHTMLDocument2).body.innerText;
 end;
@@ -147,14 +229,17 @@ var
 begin
   result := '';
   reg := TPerlRegEx.Create;
-  reg.RegEx := exp;
-  reg.Subject := s;
-  if not reg.Match then exit;
-  reg.Subject := reg.Groups[0];
-  reg.RegEx := exp2;
-  if not reg.Match then exit;
-  result := reg.Groups[0];
-  reg.Free;
+  try
+    reg.RegEx := exp;
+    reg.Subject := s;
+    if not reg.Match then exit;
+    reg.Subject := reg.Groups[0];
+    reg.RegEx := exp2;
+    if not reg.Match then exit;
+    result := reg.Groups[0];
+  finally
+    reg.Free;
+  end;
 end;
 
 function URLParamEncode(param: string): string;
@@ -172,56 +257,57 @@ begin
   result := TXMLNode.Utf8ToWide(s);
 end;
 
-function GetHTMLFromWebBrowser(wb: TWebBrowser): string;
+function GetHTMLFromWebBrowser(wb: TEmbeddedWB): string;
 begin
   result := (wb.Document as IHTMLDocument2).body.outerHTML;
 end;
 
 procedure Init;
-var
-  ini: TINIFile;
 begin
   ExePath := ExtractFilePath(Application.ExeName);
-  ini := TINIFile.Create(Ini_Name);
-  Host_URL := ini.ReadString('URL', 'Host_URL', 'https://hfzkdebug.appspot.com');
-  User_Query_URL := ini.ReadString('URL', 'User_Query_URL', Host_URL+'/user/queryuser');
-  User_Login_URL := ini.ReadString('URL', 'User_Login_URL', Host_URL+'/user/login');
-  User_Operate_URL := ini.ReadString('URL', 'User_Operate_URL', Host_URL+'/user/operate');
-  Account_Query_URL := ini.ReadString('URL', 'Account_Query_URL', Host_URL+'/user/queryaccount');
-  Account_Modify_URL := ini.ReadString('URL', 'Account_Modify_URL', Host_URL+'/user/modifyaccount');
-  Intf_Sina_URL := ini.ReadString('URL', 'Intf_Sina_URL', Host_URL+'/intf/sina');
-  Intf_Twitter_URL := ini.ReadString('URL', 'Intf_Twitter_URL', Host_URL+'/intf/twitter');
-  Intf_Facebook_URL := ini.ReadString('URL', 'Intf_Facebook_URL', Host_URL+'/intf/facebook');
-  Intf_Call_URL := ini.ReadString('URL','Intf_Call_URL', Host_URL+'/intf/call');
-  Intf_Sep_URL := ini.ReadString('URL','Intf_Sep_URL', Host_URL+'/intf/sep');
-  Intf_Smart_URL := ini.ReadString('URL', 'Intf_Smart_URL', Host_URL+'/intf/smart');
-  Emotion_Sina_Path := ini.ReadString('Path','Emotion_Sina_Path', '..\Res\Images\Emotions\Sina');
-  Image_Path := ini.ReadString('Path','Image_Path', '..\Res\Images');
-  Cache_Path := ini.ReadString('Path', 'Cache_Path', '..\Cache');
-  ini.Free;
+  INIFile := TINIFile.Create(Ini_Name);
+  Host_URL := INIFile.ReadString('URL', 'Host_URL', 'https://hfzkdebug.appspot.com');
+  User_Query_URL := INIFile.ReadString('URL', 'User_Query_URL', Host_URL+'/user/query');
+  User_Login_URL := INIFile.ReadString('URL', 'User_Login_URL', Host_URL+'/user/login');
+  User_Operate_URL := INIFile.ReadString('URL', 'User_Operate_URL', Host_URL+'/user/operate');
+  Account_Query_URL := INIFile.ReadString('URL', 'Account_Query_URL', Host_URL+'/account/query');
+  Account_Modify_URL := INIFile.ReadString('URL', 'Account_Modify_URL', Host_URL+'/user/modifyaccount');
+  Intf_Sina_URL := INIFile.ReadString('URL', 'Intf_Sina_URL', Host_URL+'/intf/sina');
+  Intf_Twitter_URL := INIFile.ReadString('URL', 'Intf_Twitter_URL', Host_URL+'/intf/twitter');
+  Intf_Facebook_URL := INIFile.ReadString('URL', 'Intf_Facebook_URL', Host_URL+'/intf/facebook');
+  Intf_Call_URL := INIFile.ReadString('URL','Intf_Call_URL', Host_URL+'/intf/call');
+  Intf_Sep_URL := INIFile.ReadString('URL','Intf_Sep_URL', Host_URL+'/intf/sep');
+  Intf_Smart_URL := INIFile.ReadString('URL', 'Intf_Smart_URL', Host_URL+'/intf/smart');
+  Emotion_Sina_Path := INIFile.ReadString('Path','Emotion_Sina_Path', '..\Res\Images\Emotions\Sina');
+  Image_Path := INIFile.ReadString('Path','Image_Path', '..\Res\Images');
+  Cache_Path := INIFile.ReadString('Path', 'Cache_Path', '..\Cache');
 end;
 
 procedure Uninit;
-var
-  ini: TINIFile;
 begin
-  ini := TINIFile.Create(Ini_Name);
-  ini.WriteString('URL', 'Host_URL', Host_URL);
-  ini.WriteString('URL', 'User_Query_URL', User_Query_URL);
-  ini.WriteString('URL', 'User_Login_URL', User_Login_URL);
-  ini.WriteString('URL', 'User_Operate_URL', User_Operate_URL);
-  ini.WriteString('URL', 'Account_Query_URL', Account_Query_URL);
-  ini.WriteString('URL', 'Account_Modify_URL', Account_Modify_URL);
-  ini.WriteString('URL', 'Intf_Sina_URL', Intf_Sina_URL);
-  ini.WriteString('URL', 'Intf_Twitter_URL', Intf_Twitter_URL);
-  ini.WriteString('URL', 'Intf_Facebook_URL', Intf_Facebook_URL);
-  ini.WriteString('URL','Intf_Call_URL', Intf_Call_URL);
-  ini.WriteString('URL','Intf_Sep_URL', Intf_Sep_URL);
-  ini.WriteString('URL','Intf_Smart_URL',Intf_Smart_URL);
-  ini.WriteString('Path','Emotion_Sina_Path', Emotion_Sina_Path);
-  ini.WriteString('Path', 'Cache_Path', Cache_Path);
-  ini.WriteString('Path','Image_Path', Image_Path);
-  ini.Free;
+  INIFile.WriteString('URL', 'Host_URL', Host_URL);
+  INIFile.WriteString('URL', 'User_Query_URL', User_Query_URL);
+  INIFile.WriteString('URL', 'User_Login_URL', User_Login_URL);
+  INIFile.WriteString('URL', 'User_Operate_URL', User_Operate_URL);
+  INIFile.WriteString('URL', 'Account_Query_URL', Account_Query_URL);
+  INIFile.WriteString('URL', 'Account_Modify_URL', Account_Modify_URL);
+  INIFile.WriteString('URL', 'Intf_Sina_URL', Intf_Sina_URL);
+  INIFile.WriteString('URL', 'Intf_Twitter_URL', Intf_Twitter_URL);
+  INIFile.WriteString('URL', 'Intf_Facebook_URL', Intf_Facebook_URL);
+  INIFile.WriteString('URL','Intf_Call_URL', Intf_Call_URL);
+  INIFile.WriteString('URL','Intf_Sep_URL', Intf_Sep_URL);
+  INIFile.WriteString('URL','Intf_Smart_URL',Intf_Smart_URL);
+  INIFile.WriteString('Path','Emotion_Sina_Path', Emotion_Sina_Path);
+  INIFile.WriteString('Path', 'Cache_Path', Cache_Path);
+  INIFile.WriteString('Path','Image_Path', Image_Path);
+  INIFile.Free;
+end;
+
+{ EConnectError }
+
+constructor EConnectError.Create(AURL: string);
+begin
+  FURL := AURL;
 end;
 
 initialization

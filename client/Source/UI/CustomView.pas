@@ -22,11 +22,12 @@ type
     ContextList: TObjectList;
     Table: TRVTableItemInfo;
 
-    procedure DoAddCell(Index: Integer;AContext: TCustomContext); virtual; abstract;
+    procedure DoAddCell(Index: Integer;AContext: TCustomContext); virtual; 
   public
     function AddContext(context: TCustomContext): boolean;
     function DeleteContext(Index: Integer): boolean;
     function DeleteLast: boolean;
+    procedure ClearAll;
 
     constructor Create(AOwner: TComponent); override;
     destructor Destroy; override;
@@ -47,13 +48,20 @@ begin
   con := FContextClass.Create;
   con.Assign(context);
   ContextList.Add(con);
-  if Assigned(Table) then
-  begin
-    DoAddCell(ContextList.Count-1, con);
-    reText.Reformat;
-  end
-  else
+  if Not Assigned(Table) then
     DoDraw;
+  DoAddCell(ContextList.Count-1, con);
+  reText.Reformat;
+end;
+
+procedure TCustomViewer.ClearAll;
+var
+  i:integer;
+begin
+  for i := ContextList.Count -1 downto 0 do
+    DeleteContext(i);
+  //ContextList.Clear;
+  //reText.Clear;
 end;
 
 constructor TCustomViewer.Create(AOwner: TComponent);
@@ -85,6 +93,12 @@ begin
   inherited;
 end;
 
+procedure TCustomViewer.DoAddCell(Index: Integer; AContext: TCustomContext);
+begin
+  Table.InsertRows(Table.Rows.Count, 1, -1, False);
+  Application.ProcessMessages;
+end;
+
 procedure TCustomViewer.DoDraw;
 var
   i: Integer;
@@ -92,13 +106,7 @@ var
 begin
   InitRe;
   InitTable;
-  for I := 0 to ContextList.Count - 1 do
-  begin
-    context := ContextList.Items[i] as FContextClass;
-    DoAddCell(i, context);
-  end;
-  reText.AddItem('table', Table);
-  reText.Reformat;
+  reText.Format;
 end;
 
 procedure TCustomViewer.InitRe;
@@ -115,6 +123,8 @@ begin
   Table.CellVPadding := 0;
   Table.CellVSpacing := 0;
   Table.CellHSpacing := 0;
+  reText.AddItem('TABLE', Table);
+  reText.Format;
 end;
 
 end.

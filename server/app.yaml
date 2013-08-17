@@ -17,6 +17,9 @@ handlers:
 - url: /user/.*
   script: user.app
 
+- url: /account/.*
+  script: account.app
+
 - url: .*
   script: main.app
 

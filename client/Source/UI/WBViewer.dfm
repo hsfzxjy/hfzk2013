@@ -1,0 +1,2 @@
+inherited CustomViewerFrame1: TCustomViewerFrame1
+end

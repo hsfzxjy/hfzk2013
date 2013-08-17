@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE xliff PUBLIC "-//XLIFF//DTD XLIFF//EN" "http://www.oasis-open.org/committees/xliff/documents/xliff.dtd">
+<xliff version="1.0">
+  <file original="E:\Zk Cup\Source\client\Source\UI\Dialogs\FrmLogin.dfm" source-language="zh-CN" target-language="zh-SG" datatype="delphiform" tool="ETM v10.0" ts="E:\Zk Cup\Source\client\Source\UI\Dialogs\FrmLogin.dfm">
+    <header>
+      <prop-group name="ITEHeaderProp">
+        <prop prop-type="Version">9.0</prop>
+        <prop prop-type="SelfDateTime">41492.5665277778</prop>
+        <prop prop-type="OrigDateTime">41479.8668981481</prop>
+        <prop prop-type="XlatDateTime">41479.8668981481</prop>
+        <prop prop-type="Translated">0</prop>
+        <prop prop-type="UnTranslated">27</prop>
+      </prop-group>
+    </header>
+    <body>
+      <trans-unit id="O:LoginForm.Left" resname="O:LoginForm.Left">
+        <source>0</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665502894</prop><prop prop-type="Status">0</prop><prop prop-type="Order">0</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.Top" resname="O:LoginForm.Top">
+        <source>0</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665503009</prop><prop prop-type="Status">0</prop><prop prop-type="Order">1</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.Caption" resname="O:LoginForm.Caption">
+        <source>'登录'</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665503125</prop><prop prop-type="Status">0</prop><prop prop-type="Order">2</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.ClientHeight" resname="O:LoginForm.ClientHeight">
+        <source>378</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665503125</prop><prop prop-type="Status">0</prop><prop prop-type="Order">3</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.ClientWidth" resname="O:LoginForm.ClientWidth">
+        <source>516</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665503241</prop><prop prop-type="Status">0</prop><prop prop-type="Order">4</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.Color" resname="O:LoginForm.Color">
+        <source>clBtnFace</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665503357</prop><prop prop-type="Status">0</prop><prop prop-type="Order">5</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.Font.Charset" resname="O:LoginForm.Font.Charset">
+        <source>DEFAULT_CHARSET</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665503472</prop><prop prop-type="Status">0</prop><prop prop-type="Order">6</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.Font.Color" resname="O:LoginForm.Font.Color">
+        <source>clWindowText</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665503588</prop><prop prop-type="Status">0</prop><prop prop-type="Order">7</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.Font.Height" resname="O:LoginForm.Font.Height">
+        <source>-11</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665503704</prop><prop prop-type="Status">0</prop><prop prop-type="Order">8</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.Font.Name" resname="O:LoginForm.Font.Name">
+        <source>'Tahoma'</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665503819</prop><prop prop-type="Status">0</prop><prop prop-type="Order">9</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.Font.Style" resname="O:LoginForm.Font.Style">
+        <source>[]</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665503935</prop><prop prop-type="Status">0</prop><prop prop-type="Order">10</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.OldCreateOrder" resname="O:LoginForm.OldCreateOrder">
+        <source>False</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665504051</prop><prop prop-type="Status">0</prop><prop prop-type="Order">11</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.Position" resname="O:LoginForm.Position">
+        <source>poScreenCenter</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665504167</prop><prop prop-type="Status">0</prop><prop prop-type="Order">12</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.PixelsPerInch" resname="O:LoginForm.PixelsPerInch">
+        <source>96</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665504282</prop><prop prop-type="Status">0</prop><prop prop-type="Order">13</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.TextHeight" resname="O:LoginForm.TextHeight">
+        <source>13</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665504398</prop><prop prop-type="Status">0</prop><prop prop-type="Order">14</prop><prop prop-type="Type">TLoginForm</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.Left" resname="O:LoginForm.O:WBLogin.Left">
+        <source>0</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.566550463</prop><prop prop-type="Status">0</prop><prop prop-type="Order">15</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.Top" resname="O:LoginForm.O:WBLogin.Top">
+        <source>0</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665504861</prop><prop prop-type="Status">0</prop><prop prop-type="Order">16</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.Width" resname="O:LoginForm.O:WBLogin.Width">
+        <source>516</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665505093</prop><prop prop-type="Status">0</prop><prop prop-type="Order">17</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.Height" resname="O:LoginForm.O:WBLogin.Height">
+        <source>378</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665505324</prop><prop prop-type="Status">0</prop><prop prop-type="Order">18</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.Align" resname="O:LoginForm.O:WBLogin.Align">
+        <source>alClient</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665505556</prop><prop prop-type="Status">0</prop><prop prop-type="Order">19</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.TabOrder" resname="O:LoginForm.O:WBLogin.TabOrder">
+        <source>0</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665505787</prop><prop prop-type="Status">0</prop><prop prop-type="Order">20</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.OnDownloadComplete" resname="O:LoginForm.O:WBLogin.OnDownloadComplete">
+        <source>WBLoginDownloadComplete</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665506018</prop><prop prop-type="Status">0</prop><prop prop-type="Order">21</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.ExplicitLeft" resname="O:LoginForm.O:WBLogin.ExplicitLeft">
+        <source>40</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.566550625</prop><prop prop-type="Status">0</prop><prop prop-type="Order">22</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.ExplicitTop" resname="O:LoginForm.O:WBLogin.ExplicitTop">
+        <source>64</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665506481</prop><prop prop-type="Status">0</prop><prop prop-type="Order">23</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.ExplicitWidth" resname="O:LoginForm.O:WBLogin.ExplicitWidth">
+        <source>300</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665506713</prop><prop prop-type="Status">0</prop><prop prop-type="Order">24</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.ExplicitHeight" resname="O:LoginForm.O:WBLogin.ExplicitHeight">
+        <source>150</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.5665506944</prop><prop prop-type="Status">0</prop><prop prop-type="Order">25</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop></prop-group>
+      </trans-unit>
+      <trans-unit id="O:LoginForm.O:WBLogin.ControlData" resname="O:LoginForm.O:WBLogin.ControlData">
+        <source>4C00000055350000112700000000000000000000000000000000000000000000000000004C000000000000000000000001000000E0D057007335CF11AE6908002B2E126208000000000000004C0000000114020000000000C000000000000046800000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000</source>
+        <prop-group name="ITEFieldProp">
+        <prop prop-type="Created">41492.566550706</prop><prop prop-type="Status">0</prop><prop prop-type="Order">26</prop><prop prop-type="Type">TWebBrowser</prop><prop prop-type="Localize">1</prop><prop prop-type="Open">{</prop><prop prop-type="Close">}</prop></prop-group>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>

@@ -27,6 +27,9 @@ type
     function GetItems(Index: Integer): TNode;virtual;abstract;
     function GetNode(Index: Variant): TNode;virtual;abstract;
     procedure SetNode(Index: Variant;const Value: TNode);virtual;abstract;
+    procedure DoAssign(source: TPersistent); virtual;
+    procedure Clear; virtual;
+    procedure DoDestroy; virtual;
   public
     property Value: Variant read AValue write AValue;
     property Values[str: String]:TNode read GetValues;
@@ -50,6 +53,7 @@ type
     procedure Remove(Key: String);overload;virtual;abstract;
     procedure Remove(Index: Integer);overload;virtual;abstract;
     constructor Create(parent: TNode); virtual;
+    destructor Destroy; override;
   end;
 
   TNodeDict = class(TNode)
@@ -59,8 +63,10 @@ type
     function GetNode(Index: Variant): TNode; override;
     procedure SetNode(Index: Variant;const Value: TNode); override;
     function GetValues(str: String): TNode;override;
+    procedure DoAssign(source: TPersistent); override;
+    procedure Clear; override;
+    procedure DoDestroy; override;
   public
-    procedure Assign(source: TPersistent); override;
     function HasKey(key: string): boolean; override;
     function Count: Integer; override;
     function HasChildren: Boolean; override;
@@ -69,7 +75,6 @@ type
       override;
     procedure Remove(Key: String); override;
     constructor Create(parent: TNode);override;
-    destructor Destroy;override;
   end;
 
   TNodeList = class(TNode)
@@ -79,15 +84,16 @@ type
     function GetNode(Index: Variant): TNode; override;
     procedure SetNode(Index: Variant;const Value: TNode); override;
     function GetItems(index: Integer): TNode;override;
+    procedure DoAssign(source: TPersistent); override;
+    procedure Clear; override;
+    procedure DoDestroy; override;
   public
-    procedure Assign(source: TPersistent); override;
     function Count: Integer; override;
     function HasChildren: Boolean; override;
     procedure Add(Value: TNode);override;
     procedure Add(Name: String;NodeType: TNodeType;Value: Variant);override;
     procedure Remove(index: integer);override;
     constructor Create(parent: TNode);override;
-    destructor Destroy; override;
   end;
 
 function parse(xml: TNativeXML): TNode; overload;
@@ -197,6 +203,7 @@ begin
   x := TNativeXML.Create(nil);
   x.ReadFromString(xml);
   result := parse(x);
+  x.Free;
 end;
 
 function parse(xml: TNativeXML): TNode;
@@ -220,14 +227,38 @@ begin
     self.AParent := node.AParent;
     self.AName := node.AName;
     self.ANodeType := node.ANodeType;
+    self.FXML := node.FXML;
+    Clear;
+    DoAssign(source);
     exit;
   end;
   inherited;
 end;
 
+procedure TNode.Clear;
+begin
+
+end;
+
 constructor TNode.Create(parent: TNode);
 begin
   AParent := parent;
+end;
+
+destructor TNode.Destroy;
+begin
+  DoDestroy;
+  inherited;
+end;
+
+procedure TNode.DoAssign(source: TPersistent);
+begin
+
+end;
+
+procedure TNode.DoDestroy;
+begin
+  Clear;
 end;
 
 function TNode.HasChildren: Boolean;
@@ -263,17 +294,14 @@ begin
   Add(Key, node);
 end;
 
-procedure TNodeDict.Assign(source: TPersistent);
+procedure TNodeDict.Clear;
 var
-  node: TNodeDict;
+  i:Integer;
 begin
-  if source is TNodeDict then
-  begin
-    node := source as TNodeDict;
-    self.ADict.Assign(node.ADict);
-    exit;
-  end;
   inherited;
+  for i := 0 to ADict.Count - 1 do
+    ADict.Objects[i].Free;
+  ADict.Clear;
 end;
 
 function TNodeDict.Count: Integer;
@@ -288,10 +316,30 @@ begin
   ADict := TStringList.Create;
 end;
 
-destructor TNodeDict.Destroy;
+procedure TNodeDict.DoAssign(source: TPersistent);
+var
+  dict: TNodeDict;
+  node: TNode;
+  i: Integer;
 begin
-  ADict.Free;
+  dict := source as TNodeDict;
+  for i:= 0 to dict.ADict.Count-1 do
+  begin
+    if dict.ADict.Objects[i] is TNodeDict then
+      node := TNodeDict.Create(self)
+    else if dict.ADict.Objects[i] is TNodeList then
+      node := TNodeList.Create(self)
+    else
+      Node := TNode.Create(self);
+    node.Assign(dict.ADict.Objects[i] as TPersistent);
+    self.Add(dict.ADict[i], node);
+  end;
+end;
+
+procedure TNodeDict.DoDestroy;
+begin
   inherited;
+  ADict.Free;
 end;
 
 function TNodeDict.GetNode(Index: Variant): TNode;
@@ -353,23 +401,15 @@ begin
   AList.Add(node);
 end;
 
-procedure TNodeList.Assign(source: TPersistent);
-var
-  node: TNodeList;
-begin
-  if source is TPersistent then
-  begin
-    node := source as TNodeList;
-    node.AList.Assign(node.AList);
-    exit;
-  end;
-  inherited;
-end;
-
 procedure TNodeList.Add(Value: TNode);
 begin
   inherited;
   AList.Add(Value);
+end;
+
+procedure TNodeList.Clear;
+begin
+  inherited;
 end;
 
 function TNodeList.Count: Integer;
@@ -384,10 +424,30 @@ begin
   NodeType := ntList;
 end;
 
-destructor TNodeList.Destroy;
+procedure TNodeList.DoAssign(source: TPersistent);
+var
+  list: TNodeList;
+  node:TNode;
+  i: integer;
 begin
-  AList.Free;
+  list := source as TNodeList;
+  for i := 0 to list.AList.Count-1 do
+  begin
+    if list.AList[i] is TNodeList then
+      node := TNodeList.Create(self)
+    else if list.AList[i] is TNodeDict then
+      node := TNodeDict.Create(self)
+    else
+      node := TNode.Create(self);
+    node.Assign(list.AList[i] as TPersistent);
+    self.Add(node);
+  end;
+end;
+
+procedure TNodeList.DoDestroy;
+begin
   inherited;
+  AList.Free;
 end;
 
 function TNodeList.GetItems(index: Integer): TNode;

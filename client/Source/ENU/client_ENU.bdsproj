@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+  <PersonalityInfo>
+    <Option>
+      <Option Name="Personality">W32ResourceDLL.Personality</Option>
+      <Option Name="ProjectType">ResourceDLL</Option>
+      <Option Name="Version">1.0</Option>
+      <Option Name="GUID">{DE8F16CA-3CC6-4D9A-BA11-5799DD3EC236}</Option>
+    </Option>
+  </PersonalityInfo>
+  <W32ResourceDLL.Personality>
+    <Source>
+      <Source Name="MainSource">E:\Zk Cup\Source\client\Source\ENU\client.dpr</Source>
+    </Source>
+    <Options>
+      <Options Name="BaseLang">2052</Options>
+      <Options Name="TargetName">..\client.ENU</Options>
+    </Options>
+    <VersionInfo>
+      <VersionInfo Name="IncludeVerInfo">False</VersionInfo>
+      <VersionInfo Name="AutoIncBuild">False</VersionInfo>
+      <VersionInfo Name="MajorVer">1</VersionInfo>
+      <VersionInfo Name="MinorVer">0</VersionInfo>
+      <VersionInfo Name="Release">0</VersionInfo>
+      <VersionInfo Name="Build">0</VersionInfo>
+      <VersionInfo Name="Debug">False</VersionInfo>
+      <VersionInfo Name="PreRelease">False</VersionInfo>
+      <VersionInfo Name="Special">False</VersionInfo>
+      <VersionInfo Name="Private">False</VersionInfo>
+      <VersionInfo Name="DLL">False</VersionInfo>
+      <VersionInfo Name="Locale">2052</VersionInfo>
+      <VersionInfo Name="CodePage">936</VersionInfo>
+    </VersionInfo>
+    <VersionInfoKeys>
+      <VersionInfoKeys Name="CompanyName"></VersionInfoKeys>
+      <VersionInfoKeys Name="FileDescription"></VersionInfoKeys>
+      <VersionInfoKeys Name="FileVersion">1.0.0.0</VersionInfoKeys>
+      <VersionInfoKeys Name="InternalName"></VersionInfoKeys>
+      <VersionInfoKeys Name="LegalCopyright"></VersionInfoKeys>
+      <VersionInfoKeys Name="LegalTrademarks"></VersionInfoKeys>
+      <VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys>
+      <VersionInfoKeys Name="ProductName"></VersionInfoKeys>
+      <VersionInfoKeys Name="ProductVersion">1.0.0.0</VersionInfoKeys>
+      <VersionInfoKeys Name="Comments"></VersionInfoKeys>
+    </VersionInfoKeys>
+    <FileList>
+      <File FileName="UI\CustomView.dfm" ContainerId="W32Form" ModuleName="CustomView.dfm"/>
+      <File FileName="UI\Dialogs\FrmLogin.dfm" ContainerId="W32Form" ModuleName="FrmLogin.dfm"/>
+      <File FileName="UI\Dialogs\FrmWaiting.dfm" ContainerId="W32Form" ModuleName="FrmWaiting.dfm"/>
+      <File FileName="UI\Main.dfm" ContainerId="W32Form" ModuleName="Main.dfm"/>
+      <File FileName="UI\SNSView.dfm" ContainerId="W32Form" ModuleName="SNSView.dfm"/>
+      <File FileName="client_DRC.rc" ContainerId="W32RC" ModuleName="client_DRC.rc"/>
+    </FileList>
+  </W32ResourceDLL.Personality>
+</BorlandProject>

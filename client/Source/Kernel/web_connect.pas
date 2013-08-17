@@ -20,7 +20,7 @@ type
   EURLGetError = class (Exception);
 
 function GetDataFromURL(url: string): TNode;
-function SafeGetDataFromURL(url: string): TNode;
+function SafeGetData(url: string): TNode;
 function GetPictureFromURL(url: string): TGraphic;
 
 //Basic web connection functions
@@ -33,13 +33,29 @@ implementation
 
 uses Global;
 
-function SafeGetDataFromURL(url: string): TNode;
+function CheckConnection(url: string): boolean;
+begin
+  result := InternetCheckConnection(PChar(GetFullURLPath(url)), 1, 0);
+end;
+
+function SafeGetData(url: string): TNode;
 var
   node: TNode;
+  error_code: Integer;
 begin
   repeat
     node := GetDataFromURL(url);
-  until not node.HasKey('_error');
+    if not node.HasKey('_error') then break;
+    error_code := node['_error_code'].Value;
+    case error_code of
+      2:
+      begin
+        node.Free;
+        raise Global.EAccountExpiredError.Create('');
+      end;
+      0: continue;
+    end;
+  until False;
   result := node;
 end;
 
@@ -61,15 +77,20 @@ begin
     result := LoadPicture(m);
     if result <> nil then
       Cache.SetPicture(s, result);
-  finally
+  except
     m.Free;
+    result := GetPictureFromPath(Global.Broken_Img_Path);
+    exit;
   end;
+  m.Free;
 end;
 
 procedure Post(url: string;data: string;res: TStream);
 var
   thread: TWebThread;
 begin
+  if not CheckConnection(url) then
+    raise EConnectError.Create(url);
   thread := TWebThread.Create(True, url, data, res);
   thread.Resume;
   while not thread.Terminated do
@@ -81,6 +102,8 @@ procedure Get(url: string;res: TStream);
 var
   stream: TWebThread;
 begin
+ // if not CheckConnection(url) then
+ //   raise EConnectError.Create(url);
   stream := TWebThread.Create(True, url, '', res);
   stream.Resume;
   while not stream.Terminated do
@@ -188,9 +211,6 @@ begin
     node := parse(xml);
   except
     FreeAndNil(node);
-    result := node;
-    raise EURLGetError.Create('Data get failed!');
-    exit;
   end;
   result := node;
 end;

@@ -4,13 +4,14 @@
   </PropertyGroup>
   <ItemGroup />
   <ItemGroup>
+    <Projects Include="C:\Users\computer\Documents\RAD Studio\Projects\test\Project2.dproj" />
     <Projects Include="Source\client.dproj" />
   </ItemGroup>
   <ProjectExtensions>
     <Borland.Personality>Default.Personality</Borland.Personality>
     <Borland.ProjectType />
     <BorlandProject>
-  <BorlandProject xmlns=""> <Default.Personality> </Default.Personality> </BorlandProject></BorlandProject>
+<BorlandProject xmlns=""><Default.Personality></Default.Personality></BorlandProject></BorlandProject>
   </ProjectExtensions>
   <Target Name="client">
     <MSBuild Projects="Source\client.dproj" Targets="" />
@@ -21,14 +22,23 @@
   <Target Name="client:Make">
     <MSBuild Projects="Source\client.dproj" Targets="Make" />
   </Target>
+  <Target Name="Project2">
+    <MSBuild Projects="C:\Users\computer\Documents\RAD Studio\Projects\test\Project2.dproj" Targets="" />
+  </Target>
+  <Target Name="Project2:Clean">
+    <MSBuild Projects="C:\Users\computer\Documents\RAD Studio\Projects\test\Project2.dproj" Targets="Clean" />
+  </Target>
+  <Target Name="Project2:Make">
+    <MSBuild Projects="C:\Users\computer\Documents\RAD Studio\Projects\test\Project2.dproj" Targets="Make" />
+  </Target>
   <Target Name="Build">
-    <CallTarget Targets="client" />
+    <CallTarget Targets="client;Project2" />
   </Target>
   <Target Name="Clean">
-    <CallTarget Targets="client:Clean" />
+    <CallTarget Targets="client:Clean;Project2:Clean" />
   </Target>
   <Target Name="Make">
-    <CallTarget Targets="client:Make" />
+    <CallTarget Targets="client:Make;Project2:Make" />
   </Target>
   <Import Condition="Exists('$(MSBuildBinPath)\Borland.Group.Targets')" Project="$(MSBuildBinPath)\Borland.Group.Targets" />
 </Project>

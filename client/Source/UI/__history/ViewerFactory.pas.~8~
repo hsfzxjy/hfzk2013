@@ -1,0 +1,22 @@
+unit ViewerFactory;
+
+interface
+
+uses UserView, Forms, Classes, Sysutils, XMLObj, CustomViewFrame;
+
+type
+  TViewerType = (vtUser);
+
+function CreateViewer(AOwner: TComponent;Category: TViewerType;Node: TNode): TCustomViewerFrame;
+
+implementation
+
+const
+  ViewerTypeStrs: array [vtUser..vtUser] of string = ('TUserViewer');
+
+function CreateViewer(AOwner: TComponent;Category: TViewerType;Node: TNode): TCustomViewerFrame;
+begin
+  result := (GetClass(ViewerTypeStrs[Category]) as TCustomViewerFrameClass).Create;
+end;
+
+end.

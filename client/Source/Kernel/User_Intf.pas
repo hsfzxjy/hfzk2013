@@ -9,6 +9,12 @@ uses
 type
   TUser =class;
   TAccount = class;
+  TAccountInfo = record
+    ID, screen_name, user_name, description, website:
+      string;
+    profile_image: TImageURLs;
+    follow_count, follower_count: Integer;
+  end;
 
   TUser = class
   private
@@ -29,7 +35,8 @@ type
       AAccount_Type: TAccount_Type;AExpire_In: Longint): boolean;overload;
     function AddAccount(xml: string):boolean; overload;
     function AddAccount(xml: TNativeXML): boolean; overload;
-    function AccountsCount(at: TAccount_Type): Integer;
+    function AccountsCount(at: TAccount_Type): Integer; overload;
+    function AccountsCount: Integer; overload;
     function FirstAccount: TAccount;
     procedure Update;
     constructor Create(ID: string);
@@ -45,13 +52,13 @@ type
     AExpire_In: Longint;
     AAccess_Secret: string;
     mAPI: TAPICall;
-    FProfileImageURL: string;
+    FProfileImageURL: TImageURLs;
     FScreenName: string;
+    FInfo: TAccountInfo;
 
     procedure Init;
     procedure Update(node: TNode);
-    procedure UpdateProfileImageURL;
-    procedure UpdateScreenName;
+    procedure UpdateInfo;
   public
     property Owner: TUser read AOwner;
     property Access_Token: string read AAccess_Token;
@@ -60,10 +67,10 @@ type
     property Account_Type: TAccount_Type read AAccount_Type;
     property Expire_In: Longint read AExpire_In;
     property API: TAPICall read mAPI write mAPI;
-    property ProfileImageURL: string read FProfileImageURL;
-    property ScreenName: string read FScreenName;
+    property Info: TAccountInfo read FInfo;
 
-    function Timeline: TNode;
+    function PublicTimeline: TNode;
+    function Timeline(ID: string): TNode;
     constructor Create(Owner: TUser;access_secret,
       access_token, account_name, account_type:string;
       expire_in: Longint);overload;
@@ -78,6 +85,8 @@ function QueryAccount(Account_Type, Account_Name: string): string; overload;
 function get_type(str: string): TAccount_Type;
 
 implementation
+
+uses Cache_;
 
 var
   Create_URL:string;
@@ -188,11 +197,25 @@ begin
   mAPI.SNS := TypeStrings[self.AAccount_Type];
 end;
 
-function TAccount.Timeline: TNode;
+function TAccount.PublicTimeline: TNode;
 begin
+  result := Cache.GetTimeline(self.AAccount_Name);
+  if result <> nil then exit;
+  mAPI.Category := 'public_timeline';
+  mAPI.AddArg('limit','64');
+  result := mAPI.QuerySmart;
+  Cache.SetTimeline(self.AAccount_Name, result);
+end;
+
+function TAccount.Timeline(ID: string): TNode;
+begin
+  result := Cache.GetTimeline(ID);
+  if result <> nil then exit;
   mAPI.Category := 'timeline';
   mAPI.AddArg('limit','10');
+  mAPI.AddArg('ID', ID);
   result := mAPI.QuerySmart;
+  Cache.SetTimeline(ID, result);
 end;
 
 procedure TAccount.Update(node: TNode);
@@ -203,55 +226,32 @@ begin
   if node.HasKey('access_secret') then
   self.AAccess_Secret := node['access_secret'].Value;
   self.AExpire_In := node['expire_in'].Value;
-  UpdateProfileImageURL;
-  UpdateScreenName;
+  UpdateInfo;
 end;
 
-procedure TAccount.UpdateProfileImageURL;
+procedure TAccount.UpdateInfo;
 var
-  Node: TNode;
+  res: TNode;
 begin
-  case AAccount_Type of
-    atFacebook:
-    begin
-      api.Func_Name := 'me';
-      api.AddArg('fields','picture');
-      node := api.Query;
-      FProfileImageURL := node['picture']['data']['url'].Value;
-    end;
-    atTwitter:
-    begin
-      api.Func_Name := 'users__show';
-      api.AddArg('screen_name',self.AAccount_Name);
-      node := api.Query;
-      FProfileImageURL := node['profile_image_url'].Value;
-    end;
-    atSina:
-    begin
-      api.Func_Name := 'users__show';
-      node := api.Query;
-      FProFileImageURL := node['profile_image_url'].Value;
-      FScreenName := 'screen_name';
-    end;
-  end;
-  if Assigned(Node) then FreeAndNil(node);
-end;
+  if not Assigned(api) then exit;
 
-procedure TAccount.UpdateScreenName;
-var
-  node: TNode;
-begin
+  api.Category := 'user';
   case AAccount_Type of
-    atFacebook:
-    begin
-      api.Func_Name := 'me';
-      node := api.Query;
-      FScreenName := node['name'].Value;
-    end;
-    atTwitter:
-      FScreenName := AAccount_Name;
+    atTwitter: api.AddArg('ID', self.AAccount_Name);
+  else
+    api.AddArg('ID', self.AAccount_Name);
   end;
-  if Assigned(Node) then FreeAndNil(node);
+  res := api.QuerySmart;
+
+  FInfo.ID := res['id'].Value;
+  FInfo.screen_name := res['screen_name'].Value;
+  FInfo.user_name := res['user_name'].Value;
+  FInfo.profile_image.Large := res['profile_image']['large_url'].Value;
+  FInfo.profile_image.Small := res['profile_image']['small_url'].Value;
+  FInfo.description := res['description'].Value;
+  FInfo.website := res['website'].Value;
+  FInfo.follow_count := res['follow_count'].Value;
+  FInfo.follower_count := res['follower_count'].Value;
 end;
 
 { TUser }
@@ -305,6 +305,11 @@ begin
   x.Free;
 end;
 
+function TUser.AccountsCount: Integer;
+begin
+  result := AccountsCount(atSina)+AccountsCount(atTwitter)+AccountsCount(atFacebook);
+end;
+
 function TUser.AddAccount(xml: TNativeXML): boolean;
 var
   node: TNode;
@@ -316,6 +321,7 @@ begin
     s := node['access_secret'].Value;
   result := AddAccount(node['access_token'].Value, s, node['account_name'].Value,
       get_type(node['account_type'].Value), node['expire_in'].Value);
+  node.Free;
 end;
 
 function TUser.Combine(ID2: string): boolean;
@@ -384,10 +390,10 @@ end;
 
 destructor TUser.Destroy;
 begin
+  DeepDestroy(SinaList);
+  DeepDestroy(TwitterList);
+  DeepDestroy(FacebookList);
   AccountsList.Free;
-  SinaList.Free;
-  TwitterList.Free;
-  FacebookList.Free;
   inherited;
 end;
 
